@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Link } from "@inertiajs/vue3";
 import Card from "./Card.vue";
 
 defineProps<{
@@ -17,9 +18,9 @@ defineProps<{
         <slot></slot>
         <template #actions>
             <nav>
-                <RouterLink v-if="!externalLink" class="p-2 font-bold text-white bg-gray-900 rounded-sm" :to="link">Check
-                    it out!
-                </RouterLink>
+                <Link v-if="!externalLink" class="p-2 font-bold text-white bg-gray-900 rounded-sm" :href="link">
+                Check it out!
+                </Link>
                 <a v-if="externalLink" class="p-2 font-bold text-white bg-gray-900 rounded-sm" :href="link"
                     target="_blank">Check it out!
                 </a>

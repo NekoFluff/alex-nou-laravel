@@ -1,25 +1,21 @@
 <script setup lang="ts">
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faGithub, faLinkedin, faXTwitter } from '@fortawesome/free-brands-svg-icons'
 
 </script>
 
 <template>
-    <div class="p-4 mt-4 transition-all rounded-lg shadow w-min hover:bg-zinc-800 hover:bg-opacity-50">
+    <div class="p-4  rounded-lg shadow-md w-min bg-white ">
         <nav class="flex space-x-10 ">
-            <a class="hover:bg-transparent" href="https://twitter.com/SheavinNou" target="_blank" rel="noopener noreferrer">
-                <font-awesome-icon icon="fa-brands fa-twitter fa-lg" transform="grow-15" />
+            <a href="https://twitter.com/SheavinNou" target="_blank" rel="noopener noreferrer">
+                <FontAwesomeIcon :icon="faXTwitter" size="lg" />
             </a>
-            <a class="hover:bg-transparent" href="https://www.linkedin.com/in/alex-nou-271323138/" target="_blank"
-                rel="noopener noreferrer">
-                <font-awesome-icon icon="fa-brands fa-linkedin fa-lg" transform="grow-15" />
+            <a href="https://www.linkedin.com/in/alex-nou-271323138/" target="_blank" rel="noopener noreferrer">
+                <FontAwesomeIcon :icon="faLinkedin" size="lg" />
             </a>
-            <a class="hover:bg-transparent" href="https://github.com/NekoFluff" target="_blank" rel="noopener noreferrer">
-                <font-awesome-icon icon="fa-brands fa-github fa-lg" transform="grow-15" />
+            <a href="https://github.com/NekoFluff" target="_blank" rel="noopener noreferrer">
+                <FontAwesomeIcon :icon="faGithub" size="lg" />
             </a>
         </nav>
     </div>
 </template>
-
-
-        <!-- <RouterLink class="p-2" to="/contact">
-                <i class="cursor-pointer fa fa-envelope fa-lg" aria-hidden="true" />
-            </RouterLink> -->

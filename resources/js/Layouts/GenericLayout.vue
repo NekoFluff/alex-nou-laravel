@@ -6,6 +6,8 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import SocialMediaBar from '@/Components/SocialMediaBar.vue';
+import PageViewTracker from '@/Components/PageViewTracker.vue';
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -39,7 +41,7 @@ const showingNavigationDropdown = ref(false);
                 </div>
 
                 <!-- Responsive Navigation Menu -->
-                <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
+                <div class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('welcome')" :active="route().current('welcome')">
                             Home
@@ -65,6 +67,12 @@ const showingNavigationDropdown = ref(false);
             <main>
                 <slot />
             </main>
+
+            <!-- Page Footer -->
+            <footer class="sticky bottom-0 ml-10 mt-6 pb-3">
+                <SocialMediaBar />
+            </footer>
         </div>
     </div>
+    <PageViewTracker />
 </template>
