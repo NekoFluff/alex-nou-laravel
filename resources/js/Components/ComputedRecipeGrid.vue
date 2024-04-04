@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ComputedRecipe } from "alex-api-typescript-client/api";
+import { ComputedRecipe } from "@/types/recipe";
 import ComputedRecipeCard from "./ComputedRecipeCard.vue";
 
 defineProps<{

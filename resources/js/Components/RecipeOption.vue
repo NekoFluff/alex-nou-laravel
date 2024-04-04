@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { useRecipesStore } from "@/stores/recipes.js"
-import type { GetDSPComputedRecipeRequestInner, Recipe } from "alex-api-typescript-client/api";
+import { useRecipesStore } from "@/stores/recipes"
+import { Recipe, RecipeRequest } from "@/types/recipe";
 import { ref, watch } from "vue";
 
 const recipesStore = useRecipesStore()
 const props = defineProps<{
-    recipeRequest: GetDSPComputedRecipeRequestInner
+    recipeRequest: RecipeRequest
     recipeOption: Recipe
     index: number
 }>();

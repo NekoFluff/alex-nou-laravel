@@ -2,16 +2,16 @@
 import { useRecipesStore } from "@/stores/recipes.js"
 import { ref } from "vue"
 import { debounce } from "lodash";
-import type { GetDSPComputedRecipeRequestInner } from "alex-api-typescript-client/api";
+import { RecipeRequest } from "@/types/recipe";
 
 const recipesStore = useRecipesStore()
 const props = defineProps<{
-    recipeRequest: GetDSPComputedRecipeRequestInner;
+    recipeRequest: RecipeRequest;
 }>();
 
 defineEmits(["click"])
 
-const rate = ref(props.recipeRequest.rate);
+const rate = ref(props.recipeRequest.quantity_per_second);
 
 const handleDelete = () => {
     recipesStore.removeRequest(props.recipeRequest)
@@ -19,7 +19,7 @@ const handleDelete = () => {
 
 const handleInput = debounce((value: string) => {
     rate.value = Number(value)
-    props.recipeRequest.rate = Number(value)
+    props.recipeRequest.quantity_per_second = Number(value)
     recipesStore.addRequest(props.recipeRequest)
 }, 500)
 

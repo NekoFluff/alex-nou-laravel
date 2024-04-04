@@ -2,8 +2,8 @@
 import { computed } from 'vue';
 import ComputedRecipeGrid from './ComputedRecipeGrid.vue';
 import Divider from './Divider.vue';
-import type { ComputedRecipe } from "alex-api-typescript-client/api";
 import { useRecipesStore } from '@/stores/recipes';
+import { ComputedRecipe } from '@/types/recipe';
 const recipesStore = useRecipesStore();
 
 const props = defineProps<{
@@ -34,7 +34,7 @@ const facilityCounts = computed(() => {
         }
 
         if (result[recipe.facility] == undefined) { result[recipe.facility] = 0 }
-        result[recipe.facility] += recipe.numFacilitiesNeeded || 0
+        result[recipe.facility] += recipe.num_facilities_needed || 0
     }
 
     return result

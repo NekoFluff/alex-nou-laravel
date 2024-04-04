@@ -3,12 +3,12 @@ import RecipeOptions from "./RecipeOptions.vue";
 import Card from "./Card.vue";
 import { useRecipesStore } from "@/stores/recipes";
 import ScrollLink from "./ScrollLink.vue";
-import type { GetDSPComputedRecipeRequestInner, Recipe } from "alex-api-typescript-client/api";
+import { Recipe, RecipeRequest } from "@/types/recipe";
 
 const recipesStore = useRecipesStore();
 
 const props = defineProps<{
-    recipeRequest: GetDSPComputedRecipeRequestInner;
+    recipeRequest: RecipeRequest;
     options: Recipe[];
 }>();
 </script>

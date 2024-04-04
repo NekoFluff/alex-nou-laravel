@@ -1,18 +1,18 @@
 <script setup lang="ts">
 
 import { useRecipesStore } from "@/stores/recipes.js"
-import type { GetDSPComputedRecipeRequestInner } from "alex-api-typescript-client/api";
 import ComputedRecipeRequestItem from "./ComputedRecipeRequestItem.vue";
+import { RecipeRequest } from "@/types/recipe";
 
 const { recipeRequests } = useRecipesStore();
 
 defineEmits(["recipeRequestClick"])
 
 const props = defineProps<{
-    selectedRecipeRequest: GetDSPComputedRecipeRequestInner
+    selectedRecipeRequest: RecipeRequest
 }>()
 
-const isSelected = (recipeRequest: GetDSPComputedRecipeRequestInner) => {
+const isSelected = (recipeRequest: RecipeRequest) => {
     return recipeRequest === props.selectedRecipeRequest
 }
 
@@ -23,6 +23,6 @@ const isSelected = (recipeRequest: GetDSPComputedRecipeRequestInner) => {
     <ul v-show="Object.keys(recipeRequests).length > 0">
         <ComputedRecipeRequestItem :class="{ 'bg-zinc-800': isSelected(recipeRequest) }"
             v-for="recipeRequest of recipeRequests" :recipeRequest="recipeRequest"
-            @click="(recipeRequest: GetDSPComputedRecipeRequestInner) => $emit('recipeRequestClick', recipeRequest)" />
+            @click="(recipeRequest: RecipeRequest) => $emit('recipeRequestClick', recipeRequest)" />
     </ul>
 </template>

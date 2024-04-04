@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import { Recipe, RecipeRequest } from "@/types/recipe";
 import RecipeOption from "./RecipeOption.vue";
 
-import { useRecipesStore } from "@/stores/recipes.js";
-import type { GetDSPComputedRecipeRequestInner, Recipe } from "alex-api-typescript-client/api";
+import { useRecipesStore } from "@/stores/recipes";
 
 const recipesStore = useRecipesStore();
 
 defineProps<{
-    recipeRequest: GetDSPComputedRecipeRequestInner
+    recipeRequest: RecipeRequest
     options: Recipe[]
 }>();
 
