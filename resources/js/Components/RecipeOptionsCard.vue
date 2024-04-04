@@ -16,7 +16,6 @@ const props = defineProps<{
 <template>
     <Card>
         <template #header>
-
             <div class="flex-1 font-bold">
                 <ScrollLink :targetId="(options[0].name)"
                     :callback="() => { recipesStore.setSelectedRecipe(options[0].name); }">

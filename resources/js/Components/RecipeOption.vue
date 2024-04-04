@@ -39,7 +39,7 @@ watch(
 </script>
 
 <template>
-    <button class="w-full p-2 mt-2 mb-2 text-sm rounded-md hover:bg-zinc-800" :class="{ 'bg-zinc-800': isSelected }"
+    <button class="w-full p-2 mt-2 mb-2 text-sm rounded-md hover:bg-gray-200" :class="{ 'bg-gray-200': isSelected }"
         @click="() => { handleAddRequirement(index) }">
         <slot name="icons">
             <i class="text-xs" v-for="(amount, materialName) in recipeOption.ingredients">

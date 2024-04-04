@@ -17,14 +17,14 @@ defineProps<{
     <RecipeOption v-for="(recipe, index) in options" :recipeRequest="recipeRequest" :recipeOption="recipe" :index="index">
         <template #icons>
             <div class="flex">
-                <div class="ml-2 mr-2" v-for="(amount, material) in recipe.ingredients">
+                <div class="ml-2 mr-2" v-for="ingredient in recipe.ingredients">
                     <div
-                        v-if="recipesStore.recipeMap[material] && recipesStore.recipeMap[material][0] && recipesStore.recipeMap[material][0].image">
-                        <img class="inline w-8 h-8" :src="recipesStore.recipeMap[material][0].image"
+                        v-if="recipesStore.recipeMap[ingredient.name] && recipesStore.recipeMap[ingredient.name][0] && recipesStore.recipeMap[ingredient.name][0].image">
+                        <img class="inline w-8 h-8" :src="recipesStore.recipeMap[ingredient.name][0].image"
                             :alt="options[0].name" />
-                        <p class="absolute bottom-0 font-extrabold left-8">{{ amount }}</p>
+                        <p class="relative bottom-0 font-extrabold">{{ ingredient.quantity }}</p>
                     </div>
-                    <p v-else>{{ material }} x{{ amount }} |</p>
+                    <p v-else>{{ ingredient.name }} x{{ ingredient.quantity }} |</p>
                 </div>
             </div>
         </template>

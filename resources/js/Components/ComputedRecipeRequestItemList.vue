@@ -21,7 +21,7 @@ const isSelected = (recipeRequest: RecipeRequest) => {
 
 <template>
     <ul v-show="Object.keys(recipeRequests).length > 0">
-        <ComputedRecipeRequestItem :class="{ 'bg-zinc-800': isSelected(recipeRequest) }"
+        <ComputedRecipeRequestItem :class="{ 'bg-gray-200': isSelected(recipeRequest) }"
             v-for="recipeRequest of recipeRequests" :recipeRequest="recipeRequest"
             @click="(recipeRequest: RecipeRequest) => $emit('recipeRequestClick', recipeRequest)" />
     </ul>

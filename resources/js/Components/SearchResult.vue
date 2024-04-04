@@ -8,8 +8,7 @@ defineEmits(['click'])
 </script>
 
 <template>
-    <button data-cy="searchResult"
-        class="flex flex-row w-full p-3 text-sm text-gray-400 bg-black rounded-md hover:bg-zinc-800"
+    <button data-cy="searchResult" class="flex flex-row w-full p-3 text-sm rounded-md hover:bg-gray-200"
         @click="$emit('click', text)">
         <slot name="icon"></slot>
 

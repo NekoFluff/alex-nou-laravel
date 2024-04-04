@@ -17,7 +17,7 @@ const scrollToElement = () => {
 </script>
 
 <template>
-    <button class="text-left hover:bg-zinc-800" @click="scrollToElement()">
+    <button class="text-left hover:bg-gray-200" @click="scrollToElement()">
         <slot></slot>
     </button>
 </template>

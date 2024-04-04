@@ -51,7 +51,7 @@ const facilityCounts = computed(() => {
                 <ComputedRecipeGrid :computedRecipes="recipes"></ComputedRecipeGrid>
                 <div v-if="index < depthSeparatedRecipes.length - 1">
                     <Divider class="my-6" />
-                    <div class="absolute px-4 -translate-x-1/2 bg-black -translate-y-9 left-1/2 ">
+                    <div class="absolute px-4 -translate-x-1/2 -translate-y-9 left-1/2 ">
                         <font-awesome-icon icon="fa-solid fa-arrow-up fa-3x" transform="grow-15" />
                     </div>
                 </div>

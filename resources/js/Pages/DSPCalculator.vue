@@ -13,6 +13,7 @@ import RecipeOptionsCard from "@/Components/RecipeOptionsCard.vue";
 import Section from "@/Components/Section.vue";
 import { includes } from "lodash";
 import { ComputedRecipe, Recipe, RecipeRequest } from '@/types/recipe';
+import axios from 'axios';
 
 const recipesStore = useRecipesStore()
 
@@ -34,6 +35,14 @@ const handleRecipeRequestClicked = (recipeRequest: RecipeRequest) => {
 //     .catch((ex) => {
 //         console.log('An error occurred', ex)
 //     })
+
+axios.get('/api/dsp/recipes')
+    .then((resp) => {
+        recipesStore.setRecipes(resp.data)
+    })
+    .catch((ex) => {
+        console.log('An error occurred', ex)
+    })
 
 const handleSearchResultClicked = (recipeName: string) => {
     recipesStore.addRequest({
@@ -59,17 +68,17 @@ const fetchData = async () => {
     if (selectedRecipeRequest.value == undefined) return;
     if (selectedRecipeRequest.value.quantity_per_second <= 0) return;
 
-    // const reqBody = [selectedRecipeRequest.value]
-    // const resp = await api.getDSPComputedRecipe(
-    //     recipesStore.groupRecipes,
-    //     recipesStore.assemblerLevel,
-    //     recipesStore.chemicalPlantLevel,
-    //     recipesStore.smelterLevel,
-    //     reqBody,
-    // )
+    const resp = await axios.post('/api/dsp/recipes/compute', selectedRecipeRequest.value, {
+        params: {
+            assemblerLevel: recipesStore.assemblerLevel,
+            chemicalPlantLevel: recipesStore.chemicalPlantLevel,
+            smelterLevel: recipesStore.smelterLevel,
+            group: recipesStore.groupRecipes
+        }
+    });
 
-    // computedRecipes.value = resp.data
-    // recipeOptionsList.value = recipesStore.getRecipesWithOptions(resp.data)
+    computedRecipes.value = resp.data
+    recipeOptionsList.value = recipesStore.getRecipesWithOptions(resp.data)
 }
 
 recipesStore.$subscribe(async () => {
@@ -92,77 +101,84 @@ recipesStore.$subscribe(async () => {
 <template>
     <Head title="DSP Calculator" />
     <GenericLayout>
-        <div class="flex flex-col">
-            <SearchBar :options="recipesStore.recipes.map((recipeList) => {
-                return {
-                    text: recipeList[0].name,
-                    image: recipeList[0].image
-                }
-            }).sort()" @searchResultClick="handleSearchResultClicked" />
-            <Section header="Options:" class="bg-black" v-if="Object.keys(recipesStore.recipeRequests).length > 0">
-                <div class="mb-3 ml-4 text-sm">Group Recipes: <input class="ml-1" type="checkbox"
-                        v-model="recipesStore.groupRecipes" />
-                </div>
-                <div class="mb-3 ml-4 text-sm ">Sort by Depth: <input class="ml-1" type="checkbox"
-                        v-model="depthModeEnabled" />
-                </div>
-                <div class="mb-3 ml-4 text-sm ">Default Assembling Machine:
-                    <button @click="setAssemblerLevel(1)" class="p-1"
-                        :class="{ 'rounded-md bg-zinc-900 border border-white': recipesStore.assemblerLevel === 1 }">
-                        <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Assembling Machine Mk.I'][0].image"
-                            :alt="recipesStore.recipeMap['Assembling Machine Mk.I'][0].name" />
-                    </button>
-                    <button @click="setAssemblerLevel(2)" class="p-1"
-                        :class="{ 'rounded-md bg-zinc-900 border border-white': recipesStore.assemblerLevel === 2 }">
-                        <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Assembling Machine Mk.II'][0].image"
-                            :alt="recipesStore.recipeMap['Assembling Machine Mk.II'][0].name" />
-                    </button>
-                    <button @click="setAssemblerLevel(3)" class="p-1"
-                        :class="{ 'rounded-md bg-zinc-900 border border-white': recipesStore.assemblerLevel === 3 }">
-                        <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Assembling Machine Mk.III'][0].image"
-                            :alt="recipesStore.recipeMap['Assembling Machine Mk.III'][0].name" />
-                    </button>
-                </div>
-                <div class="mb-3 ml-4 text-sm ">Default Smelter:
-                    <button @click="setSmelterLevel(1)" class="p-1"
-                        :class="{ 'rounded-md bg-zinc-900 border border-white': recipesStore.smelterLevel === 1 }">
-                        <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Arc Smelter'][0].image"
-                            :alt="recipesStore.recipeMap['Arc Smelter'][0].name" />
-                    </button>
-                    <button @click="setSmelterLevel(2)" class="p-1"
-                        :class="{ 'rounded-md bg-zinc-900 border border-white': recipesStore.smelterLevel === 2 }">
-                        <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Plane Smelter'][0].image"
-                            :alt="recipesStore.recipeMap['Plane Smelter'][0].name" />
-                    </button>
-                </div>
-                <div class="mb-3 ml-4 text-sm ">Default Chemical Plant:
-                    <button @click="setChemicalPlantLevel(1)" class="p-1"
-                        :class="{ 'rounded-md bg-zinc-900 border border-white': recipesStore.chemicalPlantLevel === 1 }">
-                        <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Chemical Plant'][0].image"
-                            :alt="recipesStore.recipeMap['Chemical Plant'][0].name" />
-                    </button>
-                    <button @click="setChemicalPlantLevel(2)" class="p-1"
-                        :class="{ 'rounded-md bg-zinc-900 border border-white': recipesStore.chemicalPlantLevel === 2 }">
-                        <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Quantum Chemical Plant'][0].image"
-                            :alt="recipesStore.recipeMap['Quantum Chemical Plant'][0].name" />
-                    </button>
+        <div class="py-12">
+            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="flex flex-col">
+                    <SearchBar :options="recipesStore.recipes.map((recipeList) => {
+                        return {
+                            text: recipeList[0].name,
+                            image: recipeList[0].image
+                        }
+                    }).sort()" @searchResultClick="handleSearchResultClicked" />
+                    <Section header="Options:" v-if="Object.keys(recipesStore.recipeRequests).length > 0">
+                        <div class="mb-3 ml-4 text-sm">Group Recipes: <input class="ml-1" type="checkbox"
+                                v-model="recipesStore.groupRecipes" />
+                        </div>
+                        <div class="mb-3 ml-4 text-sm ">Sort by Depth: <input class="ml-1" type="checkbox"
+                                v-model="depthModeEnabled" />
+                        </div>
+                        <div class="mb-3 ml-4 text-sm ">Default Assembling Machine:
+                            <button @click="setAssemblerLevel(1)" class="p-1"
+                                :class="{ 'rounded-md bg-gray-200 border border-white': recipesStore.assemblerLevel === 1 }">
+                                <img class="inline w-6 h-6"
+                                    :src="recipesStore.recipeMap['Assembling Machine Mk.I'][0].image"
+                                    :alt="recipesStore.recipeMap['Assembling Machine Mk.I'][0].name" />
+                            </button>
+                            <button @click="setAssemblerLevel(2)" class="p-1"
+                                :class="{ 'rounded-md bg-gray-200 border border-white': recipesStore.assemblerLevel === 2 }">
+                                <img class="inline w-6 h-6"
+                                    :src="recipesStore.recipeMap['Assembling Machine Mk.II'][0].image"
+                                    :alt="recipesStore.recipeMap['Assembling Machine Mk.II'][0].name" />
+                            </button>
+                            <button @click="setAssemblerLevel(3)" class="p-1"
+                                :class="{ 'rounded-md bg-gray-200 border border-white': recipesStore.assemblerLevel === 3 }">
+                                <img class="inline w-6 h-6"
+                                    :src="recipesStore.recipeMap['Assembling Machine Mk.III'][0].image"
+                                    :alt="recipesStore.recipeMap['Assembling Machine Mk.III'][0].name" />
+                            </button>
+                        </div>
+                        <div class="mb-3 ml-4 text-sm ">Default Smelter:
+                            <button @click="setSmelterLevel(1)" class="p-1"
+                                :class="{ 'rounded-md bg-gray-200 border border-white': recipesStore.smelterLevel === 1 }">
+                                <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Arc Smelter'][0].image"
+                                    :alt="recipesStore.recipeMap['Arc Smelter'][0].name" />
+                            </button>
+                            <button @click="setSmelterLevel(2)" class="p-1"
+                                :class="{ 'rounded-md bg-gray-200 border border-white': recipesStore.smelterLevel === 2 }">
+                                <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Plane Smelter'][0].image"
+                                    :alt="recipesStore.recipeMap['Plane Smelter'][0].name" />
+                            </button>
+                        </div>
+                        <div class="mb-3 ml-4 text-sm ">Default Chemical Plant:
+                            <button @click="setChemicalPlantLevel(1)" class="p-1"
+                                :class="{ 'rounded-md bg-gray-200 border border-white': recipesStore.chemicalPlantLevel === 1 }">
+                                <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Chemical Plant'][0].image"
+                                    :alt="recipesStore.recipeMap['Chemical Plant'][0].name" />
+                            </button>
+                            <button @click="setChemicalPlantLevel(2)" class="p-1"
+                                :class="{ 'rounded-md bg-gray-200 border border-white': recipesStore.chemicalPlantLevel === 2 }">
+                                <img class="inline w-6 h-6" :src="recipesStore.recipeMap['Quantum Chemical Plant'][0].image"
+                                    :alt="recipesStore.recipeMap['Quantum Chemical Plant'][0].name" />
+                            </button>
 
-                </div>
-            </Section>
-            <div v-if="selectedRecipeRequest != undefined" class="flex justify-between">
-                <Section header="Want" class="flex-initial w-5/12 max-w-xs bg-black">
-                    <ComputedRecipeRequestList :selectedRecipeRequest="selectedRecipeRequest"
-                        @recipeRequestClick="handleRecipeRequestClicked" />
-                </Section>
-                <Section header="Need" class="flex-initial w-full mx-3 bg-black">
-                    <ComputedRecipeOutput :depthMode="depthModeEnabled" :computedRecipes="computedRecipes" />
-                </Section>
-                <Section v-if="recipeOptionsList && recipeOptionsList.length > 0" header="Alternate Recipes"
-                    class="flex-initial w-5/12 max-w-xs bg-black">
-                    <div v-for=" recipeOptions  of  recipeOptionsList ">
-                        <RecipeOptionsCard :recipeRequest="selectedRecipeRequest" :options="recipeOptions" />
+                        </div>
+                    </Section>
+                    <div v-if="selectedRecipeRequest != undefined" class="flex justify-between">
+                        <Section header="Want" class="flex-initial w-5/12 max-w-xs">
+                            <ComputedRecipeRequestList :selectedRecipeRequest="selectedRecipeRequest"
+                                @recipeRequestClick="handleRecipeRequestClicked" />
+                        </Section>
+                        <Section header="Need" class="flex-initial w-full mx-3">
+                            <ComputedRecipeOutput :depthMode="depthModeEnabled" :computedRecipes="computedRecipes" />
+                        </Section>
+                        <Section v-if="recipeOptionsList && recipeOptionsList.length > 0" header="Alternate Recipes"
+                            class="flex-initial w-5/12 max-w-xs">
+                            <div v-for=" recipeOptions  of  recipeOptionsList ">
+                                <RecipeOptionsCard :recipeRequest="selectedRecipeRequest" :options="recipeOptions" />
+                            </div>
+                        </Section>
                     </div>
-                </Section>
+                </div>
             </div>
         </div>
     </GenericLayout>
