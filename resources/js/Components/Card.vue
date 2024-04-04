@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class="flex flex-col gap-2 p-3 m-3 text-green-500 border border-green-500 rounded-md shadow-lg">
+    <div class="flex flex-col gap-2 p-3 m-3  border border-gray-500 rounded-md shadow-lg">
 
         <div data-cy="header" class="font-bold">
             <slot name="header"></slot>

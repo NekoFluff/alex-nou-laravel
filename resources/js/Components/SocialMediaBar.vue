@@ -4,7 +4,7 @@
 
 <template>
     <div class="p-4 mt-4 transition-all rounded-lg shadow w-min hover:bg-zinc-800 hover:bg-opacity-50">
-        <nav class="flex space-x-10 text-green-500">
+        <nav class="flex space-x-10 ">
             <a class="hover:bg-transparent" href="https://twitter.com/SheavinNou" target="_blank" rel="noopener noreferrer">
                 <font-awesome-icon icon="fa-brands fa-twitter fa-lg" transform="grow-15" />
             </a>

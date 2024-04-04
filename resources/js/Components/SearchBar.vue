@@ -37,7 +37,7 @@ const handleSearchResultClicked = (result: string) => {
     <div data-cy="searchBar" class="mb-3">
 
         <input :value="text"
-            class="w-full p-2 text-black bg-white rounded-md shadow-lg outline-none placeholder-slate-700 shadow-green-900"
+            class="w-full p-2 text-black bg-white rounded-md shadow-lg outline-none placeholder-slate-700 shadow-gray-900"
             type="text" placeholder="Search..." @input="handleUpdate(($event.target as HTMLInputElement).value)" />
         <SearchResultList class="w-full mt-0" :results="filteredOptions" @searchResultClick="handleSearchResultClicked" />
     </div>

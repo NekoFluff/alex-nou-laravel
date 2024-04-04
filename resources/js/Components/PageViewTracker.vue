@@ -32,7 +32,7 @@ pageViewCount()
 
 <template>
     <div class="flex justify-center">
-        <div class="p-2 text-lg font-semibold text-green-500 transition-all duration-700 rounded-md"
+        <div class="p-2 text-lg font-semibold  transition-all duration-700 rounded-md"
             :class="{ 'text-transparent': isLoading, 'tracking-widest': !isLoading }">
             {{ `${count}`.padStart(10, '0') }}
         </div>
