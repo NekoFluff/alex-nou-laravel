@@ -11,7 +11,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <Head title="Projects" />
+    <Head title="Wanikani Progress" />
     <GenericLayout>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
