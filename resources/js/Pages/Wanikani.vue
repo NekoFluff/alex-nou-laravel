@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3";
-import GenericLayout from "@/Layouts/GenericLayout.vue";
-import Calendar from "@/Components/Calendar.vue";
-import { LevelProgression } from "@/types/levelProgression";
+import { Head } from '@inertiajs/vue3';
+import GenericLayout from '@/Layouts/GenericLayout.vue';
+import Calendar from '@/Components/Calendar.vue';
+import { LevelProgression } from '@/types/levelProgression';
 
 const props = defineProps<{
     levelProgressions: LevelProgression[];
@@ -15,10 +15,7 @@ const props = defineProps<{
     <GenericLayout>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <Calendar
-                    :current-level="currentLevel"
-                    :level-progressions="levelProgressions"
-                />
+                <Calendar :current-level="currentLevel" :level-progressions="levelProgressions" />
             </div>
         </div>
     </GenericLayout>

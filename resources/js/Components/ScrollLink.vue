@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const props = defineProps<{
     targetId: string;
     callback: () => void;
@@ -10,10 +9,9 @@ const scrollToElement = () => {
 
     if (el) {
         el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        props.callback()
+        props.callback();
     }
-}
-
+};
 </script>
 
 <template>

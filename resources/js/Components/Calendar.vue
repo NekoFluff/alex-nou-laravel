@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { LevelProgression } from "@/types/levelProgression";
-import { CalendarComponent } from "v-calendar/dist/types/tests/unit/specs/utils.js";
-import { onMounted, ref } from "vue";
+import { LevelProgression } from '@/types/levelProgression';
+import { CalendarComponent } from 'v-calendar/dist/types/tests/unit/specs/utils.js';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps<{
     levelProgressions: LevelProgression[];
@@ -23,10 +23,8 @@ const buildAttributes = () => {
                         ? `Goal Met: Level ${i} Complete`
                         : `Goal: Level ${i} Complete`,
             },
-            highlight: props.currentLevel > i ? "green" : "red",
-            dates: new Date(
-                startDate.getTime() + dayInterval * i * 24 * 60 * 60 * 1000
-            ),
+            highlight: props.currentLevel > i ? 'green' : 'red',
+            dates: new Date(startDate.getTime() + dayInterval * i * 24 * 60 * 60 * 1000),
             order: 1,
         });
     }
@@ -34,8 +32,8 @@ const buildAttributes = () => {
     props.levelProgressions.forEach((levelProgression) => {
         if (levelProgression.passed_at === null) {
             attributes.value.push({
-                key: "Current Level",
-                highlight: "blue",
+                key: 'Current Level',
+                highlight: 'blue',
                 dates: [[levelProgression.started_at, new Date()]],
                 popover: {
                     label: `Currently Level ${props.currentLevel}`,
@@ -45,10 +43,8 @@ const buildAttributes = () => {
         } else {
             attributes.value.push({
                 key: `Level ${levelProgression.level} Complete`,
-                highlight: "green",
-                dates: [
-                    [levelProgression.started_at, levelProgression.passed_at],
-                ],
+                highlight: 'green',
+                dates: [[levelProgression.started_at, levelProgression.passed_at]],
                 popover: {
                     label: `Level ${levelProgression.level} Complete`,
                 },

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import axios from "axios";
-import { ref } from "vue";
+import axios from 'axios';
+import { ref } from 'vue';
 
 let count = ref(0);
 let isLoading = ref(false);
@@ -10,7 +10,7 @@ const pageViewed = () => {
     isLoading.value = true;
 
     axios
-        .post(route("page-views.store"), {
+        .post(route('page-views.store'), {
             url: window.location.href,
         })
         .then((response) => {
@@ -35,7 +35,7 @@ pageViewed();
                 'tracking-widest': !isLoading,
             }"
         >
-            {{ `${count}`.padStart(10, "0") }}
+            {{ `${count}`.padStart(10, '0') }}
         </div>
     </div>
 </template>
