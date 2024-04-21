@@ -26,7 +26,9 @@
         "@fortawesome/free-regular-svg-icons": "^6.5.2",
         "@fortawesome/free-solid-svg-icons": "^6.5.2",
         "@fortawesome/vue-fontawesome": "^3.0.6",
+        "@popperjs/core": "^2.11.8",
         "lodash": "^4.17.21",
-        "pinia": "^2.1.7"
+        "pinia": "^2.1.7",
+        "v-calendar": "^3.1.2"
     }
 }

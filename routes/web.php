@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WanikaniController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -16,6 +17,8 @@ Route::get('/projects', function () {
 Route::get('/projects/dsp', function () {
     return Inertia::render('DSPCalculator');
 })->name('dsp');
+
+Route::get('/wanikani', [WanikaniController::class, 'show'])->name('wanikani');
 
 
 // Route::get('/dashboard', function () {
