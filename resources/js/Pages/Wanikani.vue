@@ -11,10 +11,18 @@ const props = defineProps<{
 </script>
 
 <template>
-    <Head title="Wanikani Progress" />
+    <Head title="WaniKani Progress" />
     <GenericLayout>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="pl-8">
+                    <h1 class="text-xl">WaniKani progress tracker</h1>
+                    <p class="mt-2 text-sm italic">
+                        This is a yearly calendar to keep track of my WaniKani goals and progress. I
+                        am currently on level
+                        <span class="text-lg font-bold"> {{ currentLevel }}</span>
+                    </p>
+                </div>
                 <Calendar :current-level="currentLevel" :level-progressions="levelProgressions" />
             </div>
         </div>
