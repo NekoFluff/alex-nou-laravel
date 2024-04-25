@@ -30,6 +30,8 @@ const buildAttributes = () => {
     }
 
     props.levelProgressions.forEach((levelProgression) => {
+        if (levelProgression.started_at === null) return;
+
         if (levelProgression.passed_at === null) {
             attributes.value.push({
                 key: 'Current Level',
