@@ -67,6 +67,12 @@ const showingNavigationDropdown = ref(false);
                         >
                             Projects
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('wanikani')"
+                            :active="route().current('wanikani')"
+                        >
+                            WaniKani
+                        </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
