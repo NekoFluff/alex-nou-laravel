@@ -18,7 +18,7 @@ const showingNavigationDropdown = ref(false);
             <nav class="bg-white border-b border-gray-100">
                 <!-- Primary Navigation Menu -->
                 <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div class="flex justify-between h-16">
+                    <div class="justify-between hidden h-16 sm:flex">
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex items-center shrink-0">
@@ -86,7 +86,7 @@ const showingNavigationDropdown = ref(false);
             </main>
 
             <!-- Page Footer -->
-            <footer class="sticky bottom-0 pb-3 mt-6 ml-10">
+            <footer class="sticky bottom-0 z-20 flex justify-center pb-3 mt-6 sm:block sm:ml-10">
                 <SocialMediaBar />
             </footer>
         </div>

@@ -60,16 +60,18 @@ onMounted(() => {
     buildAttributes();
     calendar.value.move(new Date(startDate.getFullYear(), 0, 1));
 });
+
+const isMobile = window.innerWidth < 640;
 </script>
 
 <template>
-    <div class="py-12">
+    <div class="pt-12 mx-8">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <VCalendar
                 ref="calendar"
                 expanded
-                :rows="4"
-                :columns="3"
+                :rows="isMobile ? 12 : 4"
+                :columns="isMobile ? 1 : 3"
                 :min-date="new Date(2023, 3, 20)"
                 :max-date="new Date(2026, 3, 20)"
                 :attributes="attributes"
