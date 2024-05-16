@@ -23,9 +23,9 @@ const buildAttributes = () => {
                         ? `Goal Met: Level ${i} Complete`
                         : `Goal: Level ${i} Complete`,
             },
-            highlight: props.currentLevel > i ? 'green' : 'red',
+            highlight: props.currentLevel > i ? 'yellow' : 'red',
             dates: new Date(startDate.getTime() + dayInterval * i * 24 * 60 * 60 * 1000),
-            order: 1,
+            order: 2,
         });
     }
 
@@ -40,7 +40,7 @@ const buildAttributes = () => {
                 popover: {
                     label: `Currently Level ${props.currentLevel}`,
                 },
-                order: 2,
+                order: 1,
             });
         } else {
             attributes.value.push({
