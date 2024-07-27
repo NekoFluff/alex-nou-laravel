@@ -13,7 +13,7 @@ const attributes = ref<any[]>([]);
 const startDate = new Date(2024, 3, 9);
 
 const buildAttributes = () => {
-    const dayInterval = 11;
+    const dayInterval = 12;
     for (let i = 1; i <= 60; i++) {
         attributes.value.push({
             key: `Goal: Level ${i} Complete`,
