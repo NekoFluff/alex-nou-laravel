@@ -58,7 +58,11 @@ const buildAttributes = () => {
 
 onMounted(() => {
     buildAttributes();
-    calendar.value.move(new Date());
+
+    const today = new Date();
+    today.setMonth(0);
+    today.setDate(1);
+    calendar.value.move(today);
 });
 
 const isMobile = window.innerWidth < 640;
