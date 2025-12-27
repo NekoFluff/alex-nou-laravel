@@ -58,7 +58,7 @@ const buildAttributes = () => {
 
 onMounted(() => {
     buildAttributes();
-    calendar.value.move(new Date(startDate.getFullYear(), 0, 1));
+    calendar.value.move(new Date());
 });
 
 const isMobile = window.innerWidth < 640;
