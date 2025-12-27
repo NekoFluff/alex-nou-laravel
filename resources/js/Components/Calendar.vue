@@ -77,7 +77,7 @@ const isMobile = window.innerWidth < 640;
                 :rows="isMobile ? 12 : 4"
                 :columns="isMobile ? 1 : 3"
                 :min-date="new Date(2023, 3, 20)"
-                :max-date="new Date(2026, 3, 20)"
+                :max-date="new Date(2028, 3, 20)"
                 :attributes="attributes"
             />
             <!-- <VDatePicker v-model="date" /> -->
