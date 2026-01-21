@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 
 import Card from '@/Components/Card.vue';
 import GenericLayout from '@/Layouts/GenericLayout.vue';
-import SocialMediaBar from '@/Components/SocialMediaBar.vue';
 </script>
 
 <template>
@@ -23,7 +22,7 @@ import SocialMediaBar from '@/Components/SocialMediaBar.vue';
                     </template>
                     <ul>
                         <li>- A code junkie</li>
-                        <li>- Software engineer for RevolutionParts</li>
+                        <li>- Software engineer for BackgroundChecks.com</li>
                         <li>- ASU Graduate (4.0 / Moeur Award)</li>
                         <li>
                             - An advocator for domain based architectures and clean, well-tested,
