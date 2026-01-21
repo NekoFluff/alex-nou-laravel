@@ -8,7 +8,7 @@ import PageViewTracker from '@/Components/PageViewTracker.vue';
 <template>
     <div>
         <div class="min-h-screen bg-gray-50">
-            <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+            <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm" role="navigation" aria-label="Main navigation">
                 <!-- Primary Navigation Menu -->
                 <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div class="justify-between hidden h-16 sm:flex">
@@ -25,18 +25,21 @@ import PageViewTracker from '@/Components/PageViewTracker.vue';
                                 <NavLink
                                     :href="route('welcome')"
                                     :active="route().current('welcome')"
+                                    aria-label="Go to home page"
                                 >
                                     Home
                                 </NavLink>
                                 <NavLink
                                     :href="route('projects')"
                                     :active="route().current('projects')"
+                                    aria-label="View projects"
                                 >
                                     Projects
                                 </NavLink>
                                 <NavLink
                                     :href="route('wanikani')"
                                     :active="route().current('wanikani')"
+                                    aria-label="View WaniKani dashboard"
                                 >
                                     WaniKani
                                 </NavLink>
@@ -85,9 +88,14 @@ import PageViewTracker from '@/Components/PageViewTracker.vue';
             </main>
 
             <!-- Page Footer -->
-            <footer class="pb-6 mt-12 border-t border-gray-200 sm:mt-16">
+            <footer class="pb-6 mt-12 border-t border-gray-200 sm:mt-16" role="contentinfo">
                 <div class="flex justify-center pt-6">
                     <SocialMediaBar />
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-600">
+                        © {{ new Date().getFullYear() }} Alex Nou. All rights reserved.
+                    </p>
                 </div>
             </footer>
         </div>

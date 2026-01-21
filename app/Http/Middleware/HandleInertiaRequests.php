@@ -35,6 +35,36 @@ class HandleInertiaRequests extends Middleware
         // Determine current page from route name
         $routeName = $request->route()?->getName() ?? 'welcome';
 
+        // Get page-specific structured data
+        $additionalStructuredData = [];
+
+        switch ($routeName) {
+            case 'welcome':
+                $additionalStructuredData = [
+                    $seoService->getStructuredData('WebSite'),
+                    $seoService->getStructuredData('ProfilePage'),
+                ];
+                break;
+            case 'projects':
+                $additionalStructuredData = [
+                    $seoService->getStructuredData('ItemList'),
+                    $seoService->getBreadcrumbs([
+                        ['name' => 'Home', 'url' => url('/')],
+                        ['name' => 'Projects', 'url' => url('/projects')],
+                    ]),
+                ];
+                break;
+            case 'dsp':
+                $additionalStructuredData = [
+                    $seoService->getBreadcrumbs([
+                        ['name' => 'Home', 'url' => url('/')],
+                        ['name' => 'Projects', 'url' => url('/projects')],
+                        ['name' => 'DSP Calculator', 'url' => url('/projects/dsp')],
+                    ]),
+                ];
+                break;
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -42,6 +72,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'seo' => $seoService->getSeoData($routeName),
             'structuredData' => $seoService->getStructuredData('Person'),
+            'additionalStructuredData' => $additionalStructuredData,
         ];
     }
 }

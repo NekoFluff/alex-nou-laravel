@@ -1,2 +1,14 @@
+# Robots.txt for alex-nou.com
 User-agent: *
-Disallow:
+
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /.env
+Disallow: /vendor/
+
+# Sitemap location
+Sitemap: https://alex-nou.com/sitemap.xml
+
+# Crawl delay for good citizenship
+Crawl-delay: 1

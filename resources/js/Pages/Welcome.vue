@@ -11,8 +11,9 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
         <div class="py-6 sm:py-12">
             <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <!-- Hero Section -->
-                <div
+                <section
                     class="relative mb-8 overflow-hidden bg-white border border-gray-200 shadow-lg sm:mb-16 rounded-2xl sm:rounded-3xl"
+                    aria-label="Introduction"
                 >
                     <!-- Subtle background pattern -->
                     <div
@@ -25,24 +26,25 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                             );
                             background-size: 32px 32px;
                         "
+                        aria-hidden="true"
                     ></div>
 
                     <div class="relative px-6 py-12 text-center sm:px-8 sm:py-20 lg:py-32">
-                        <div
+                        <h1
                             class="mb-3 text-3xl font-bold text-gray-900 sm:mb-4 sm:text-5xl md:text-6xl lg:text-7xl"
                         >
                             <span class="inline-block animate-fade-in">Hello</span>
-                        </div>
-                        <div
+                        </h1>
+                        <p
                             class="text-xl font-light text-gray-700 sm:text-2xl md:text-3xl lg:text-4xl"
                         >
                             I'm <span class="font-bold text-gray-900">Alex Nou</span>
-                        </div>
-                        <div class="mt-4 text-base text-gray-600 sm:mt-6 sm:text-lg lg:text-xl">
+                        </p>
+                        <p class="mt-4 text-base text-gray-600 sm:mt-6 sm:text-lg lg:text-xl">
                             Software Engineer • Code Enthusiast • Problem Solver
-                        </div>
+                        </p>
                     </div>
-                </div>
+                </section>
 
                 <!-- Cards Grid -->
                 <div class="grid gap-4 sm:gap-6 md:grid-cols-2">

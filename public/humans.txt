@@ -1,0 +1,12 @@
+/* TEAM */
+Developer: Alex Nou
+Site: https://alex-nou.com
+Location: United States
+
+/* SITE */
+Standards: HTML5, CSS3, JavaScript
+Components: Laravel, Vue.js, Inertia.js, TypeScript
+Software: VS Code, Git
+
+/* THANKS */
+Built with Laravel, Vue.js, and Tailwind CSS
