@@ -17,9 +17,9 @@
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="{{ $page['props']['seo']['description'] ?? 'Alex Nou - Software Engineer at BackgroundChecks.com specializing in Go, PHP, TypeScript, and Kubernetes.' }}">
+        content="{{ $page['props']['seo']['description'] ?? 'Alex Nou - Software Engineer at BackgroundChecks.com specializing in Go, PHP, TypeScript, and Docker.' }}">
     <meta name="keywords"
-        content="{{ $page['props']['seo']['keywords'] ?? 'Alex Nou, software engineer, Go developer, PHP developer, TypeScript, Kubernetes, web development' }}">
+        content="{{ $page['props']['seo']['keywords'] ?? 'Alex Nou, software engineer, Go developer, PHP developer, TypeScript, Docker, web development' }}">
     <meta name="author" content="{{ $page['props']['seo']['author'] ?? 'Alex Nou' }}">
     <meta name="robots" content="{{ $page['props']['seo']['robots'] ?? 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' }}">
     <link rel="canonical" href="{{ $page['props']['seo']['canonical'] ?? url()->current() }}">

@@ -10,12 +10,10 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
     <GenericLayout>
         <div class="py-6 sm:py-12">
             <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <!-- Hero Section -->
                 <section
                     class="relative mb-8 overflow-hidden bg-white border border-gray-200 shadow-lg sm:mb-16 rounded-2xl sm:rounded-3xl"
                     aria-label="Introduction"
                 >
-                    <!-- Subtle background pattern -->
                     <div
                         class="absolute inset-0 opacity-[0.03]"
                         style="
@@ -66,8 +64,7 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                                 with a 4.0 GPA and the Moeur Award for academic excellence.
                             </p>
                             <p>
-                                Strong advocate for domain-driven design, clean architecture, and
-                                test-driven development.
+                                Loves working with Laravel, Docker, and exploring new technologies to solve complex problems.
                             </p>
                         </div>
                     </Card>
@@ -84,16 +81,16 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                                 </div>
                                 <div class="flex flex-wrap gap-2">
                                     <span
-                                        class="px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200 rounded-md bg-blue-50 sm:text-sm"
-                                        >Go</span
-                                    >
-                                    <span
                                         class="px-3 py-1 text-xs font-medium text-purple-700 border border-purple-200 rounded-md bg-purple-50 sm:text-sm"
-                                        >PHP</span
+                                        >PHP (Love Laravel)</span
                                     >
                                     <span
                                         class="px-3 py-1 text-xs font-medium text-yellow-700 border border-yellow-200 rounded-md bg-yellow-50 sm:text-sm"
-                                        >TypeScript</span
+                                        >Javascript/TypeScript (Love Vue.js)</span
+                                    >
+                                    <span
+                                        class="px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200 rounded-md bg-blue-50 sm:text-sm"
+                                        >Go</span
                                     >
                                     <span
                                         class="px-3 py-1 text-xs font-medium text-gray-600 border border-gray-200 rounded-md bg-gray-50 sm:text-sm"
@@ -116,7 +113,7 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                                 <div class="flex flex-wrap gap-2">
                                     <span
                                         class="px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200 rounded-md bg-blue-50 sm:text-sm"
-                                        >Kubernetes</span
+                                        >Docker</span
                                     >
                                     <span
                                         class="px-3 py-1 text-xs font-medium text-blue-700 border border-blue-200 rounded-md bg-blue-50 sm:text-sm"
@@ -167,20 +164,19 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                         </template>
                         <div class="space-y-3 text-sm leading-relaxed text-gray-700 sm:text-base">
                             <p>
+                                <span class="font-medium text-gray-900">Favorite Games:</span> Factorio, Dyson Sphere Program, CIV 6, Dark Souls, Hollow Knight, and
+                                Monster Hunter.
+                            </p>
+                            <p>
+                                <span class="font-medium text-gray-900">Japanese Culture:</span>
+                                Learning Japanese using in-person courses and WaniKani. Favorite anime include KonoSuba, Sangatsu no Lion, Wotakoi and too many more.
+                            </p>
+                            <p>
                                 <span class="font-medium text-gray-900"
                                     >Machine Learning Enthusiast:</span
                                 >
                                 Exploring neural networks and computer vision applications, with a
                                 focus on convolutional neural networks.
-                            </p>
-                            <p>
-                                <span class="font-medium text-gray-900">Gaming:</span> Strategy and
-                                problem-solving games like Factorio, Dyson Sphere Program, and
-                                Monster Hunter.
-                            </p>
-                            <p>
-                                <span class="font-medium text-gray-900">Japanese Culture:</span>
-                                Anime fan and actively learning Japanese through WaniKani.
                             </p>
                         </div>
                     </Card>
