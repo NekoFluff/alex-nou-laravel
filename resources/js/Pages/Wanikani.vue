@@ -15,7 +15,7 @@ const props = defineProps<{
     <GenericLayout>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="pl-8">
+                <div class="px-8">
                     <h1 class="text-xl">WaniKani progress tracker</h1>
                     <p class="mt-2 text-sm italic">
                         This is a yearly calendar to keep track of my WaniKani goals and progress. I

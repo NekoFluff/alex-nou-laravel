@@ -48,7 +48,7 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                 <div class="grid gap-4 sm:gap-6 md:grid-cols-2">
                     <Card>
                         <template #header>
-                            <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">About Me</h2>
+                            About Me
                         </template>
                         <div class="space-y-3 text-sm leading-relaxed text-gray-700 sm:text-base">
                             <p>
@@ -70,9 +70,7 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                     </Card>
                     <Card>
                         <template #header>
-                            <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">
-                                Technical Skills
-                            </h2>
+                            Technical Skills
                         </template>
                         <div class="space-y-4">
                             <div>
@@ -160,7 +158,7 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                     </Card>
                     <Card class="md:col-span-2">
                         <template #header>
-                            <h2 class="text-xl font-bold text-gray-800 sm:text-2xl">Interests</h2>
+                            Interests
                         </template>
                         <div class="space-y-3 text-sm leading-relaxed text-gray-700 sm:text-base">
                             <p>
@@ -186,9 +184,7 @@ import GenericLayout from '@/Layouts/GenericLayout.vue';
                 <div class="mt-8 sm:mt-12">
                     <Card>
                         <template #header>
-                            <h2 class="text-xl font-bold text-center text-gray-800 sm:text-2xl">
-                                Feel Free to Reach Out
-                            </h2>
+                            Feel Free to Reach Out
                         </template>
                         <div class="text-center">
                             <div class="flex flex-wrap justify-center gap-3">
