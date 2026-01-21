@@ -33,6 +33,9 @@
         content="{{ $page['props']['seo']['twitter_description'] ?? 'Alex Nou - Software Engineer & Developer Portfolio' }}">
     <meta name="twitter:image" content="{{ $page['props']['seo']['twitter_image'] ?? asset('images/og-image.jpg') }}">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+
     <!-- Additional SEO -->
     <meta name="theme-color" content="#ffffff">
     <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="{{ url('/feed') }}">
