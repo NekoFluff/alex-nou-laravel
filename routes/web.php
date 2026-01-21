@@ -20,6 +20,8 @@ Route::get('/projects/dsp', function () {
 
 Route::get('/wanikani', [WanikaniController::class, 'show'])->name('wanikani');
 
+// SEO Routes
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');

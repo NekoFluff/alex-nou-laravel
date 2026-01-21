@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,11 +30,18 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $seoService = new SeoService();
+
+        // Determine current page from route name
+        $routeName = $request->route()?->getName() ?? 'welcome';
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
             ],
+            'seo' => $seoService->getSeoData($routeName),
+            'structuredData' => $seoService->getStructuredData('Person'),
         ];
     }
 }
