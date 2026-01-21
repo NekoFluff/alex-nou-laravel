@@ -57,6 +57,7 @@ const emit = defineEmits<{
             <div class="p-6 space-y-4">
                 <div v-for="recipeOptions of recipeOptionsList" :key="recipeOptions[0].name">
                     <RecipeOptionsCard
+                        v-if="selectedRecipeRequest"
                         :recipeRequest="selectedRecipeRequest"
                         :options="recipeOptions"
                     />
