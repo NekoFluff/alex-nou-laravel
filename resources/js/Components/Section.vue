@@ -5,10 +5,12 @@ defineProps<{
 </script>
 
 <template>
-    <div data-cy="section" class="p-2 pb-4 mb-3 border border-b-4 border-gray-500 rounded-md">
-        <h2 data-cy="section-header" class="mx-2 mb-3 ml-1 text-lg">
+    <div data-cy="section" class="bg-white border border-slate-300 rounded">
+        <h2 data-cy="section-header" class="px-4 py-3 text-base font-medium text-slate-900 border-b border-slate-300">
             {{ header }}
         </h2>
-        <slot></slot>
+        <div class="p-4">
+            <slot></slot>
+        </div>
     </div>
 </template>

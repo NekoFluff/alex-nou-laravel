@@ -69,7 +69,7 @@ const isMobile = window.innerWidth < 640;
 </script>
 
 <template>
-    <div class="pt-12 mx-8">
+    <div class="pt-12">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <VCalendar
                 ref="calendar"

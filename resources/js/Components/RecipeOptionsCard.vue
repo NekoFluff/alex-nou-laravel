@@ -16,27 +16,26 @@ const props = defineProps<{
 <template>
     <Card>
         <template #header>
-            <div class="flex-1 font-bold">
-                <ScrollLink
-                    :targetId="options[0].name"
-                    :callback="
-                        () => {
-                            recipesStore.setSelectedRecipe(options[0].name);
-                        }
+            <ScrollLink
+                :targetId="options[0].name"
+                :callback="
+                    () => {
+                        recipesStore.setSelectedRecipe(options[0].name);
+                    }
+                "
+                class="flex items-center gap-2"
+            >
+                <img
+                    v-if="
+                        recipesStore.recipeMap[options[0].name] &&
+                        recipesStore.recipeMap[options[0].name][0]
                     "
-                >
-                    <img
-                        v-if="
-                            recipesStore.recipeMap[options[0].name] &&
-                            recipesStore.recipeMap[options[0].name][0]
-                        "
-                        class="inline w-5 h-5"
-                        :src="recipesStore.recipeMap[options[0].name][0].image"
-                        :alt="options[0].name"
-                    />
-                    {{ options[0].name }}
-                </ScrollLink>
-            </div>
+                    class="inline w-6 h-6"
+                    :src="recipesStore.recipeMap[options[0].name][0].image"
+                    :alt="options[0].name"
+                />
+                <span>{{ options[0].name }}</span>
+            </ScrollLink>
         </template>
 
         <RecipeOptions :recipeRequest="props.recipeRequest" :options="options" />

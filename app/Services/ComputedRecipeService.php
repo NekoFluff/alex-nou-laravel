@@ -108,7 +108,7 @@ class ComputedRecipeService
         $numberOfFacilitiesNeeded = $recipe->time_to_produce * $craftingSpeed / $recipe->quantity_produced;
 
         foreach ($recipe->ingredients as $ingredient) {
-            $consumedMats[$ingredient->name] = $ingredient->quantity * $numberOfFacilitiesNeeded / $recipe->time_to_produce;
+            $consumedMats[$ingredient->name] = $recipe->time_to_produce > 0 ? $ingredient->quantity * $numberOfFacilitiesNeeded / $recipe->time_to_produce : $ingredient->quantity * $numberOfFacilitiesNeeded;
         }
 
         $computedRecipe = new ComputedRecipe([
@@ -117,7 +117,7 @@ class ComputedRecipeService
             'num_facilities_needed' => $numberOfFacilitiesNeeded / $speedModifier,
             'items_consumed_per_sec' => $consumedMats,
             'seconds_spent_per_craft' => $recipe->time_to_produce,
-            'crafting_per_sec' => $craftingSpeed,
+            'num_crafted_per_sec' => $craftingSpeed,
             'used_for' => $parentItemName,
             'depth' => $depth,
             'image' => $recipe->image,

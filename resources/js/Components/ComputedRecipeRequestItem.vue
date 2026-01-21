@@ -38,14 +38,14 @@ const handleInput = debounce((value: string) => {
             </div>
 
             <input
-                class="text-black flex-initial w-6 rounded-md text-right px-0.5 outline-none"
+                class="text-black flex-initial w-16 rounded-md text-right px-2 py-1 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 type="number"
                 step="1"
                 placeholder="1.0"
                 :value="rate"
                 @input="handleInput(($event.target as HTMLInputElement).value)"
             />
-            <span class="ml-0.5">/s</span>
+            <span class="ml-1">/s</span>
             <button class="flex-initial ml-2 text-center rounded-md" @click="handleDelete">
                 <font-awesome-icon icon="fa-solid fa-trash" />
             </button>

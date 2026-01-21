@@ -100,181 +100,222 @@ recipesStore.$subscribe(async () => {
 <template>
     <Head title="DSP Calculator" />
     <GenericLayout>
-        <div class="py-12">
+        <div class="py-8">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div class="flex flex-col">
-                    <SearchBar
-                        :options="
-                            recipesStore.recipes
-                                .map((recipeList) => {
-                                    return {
-                                        text: recipeList[0].name,
-                                        image: recipeList[0].image,
-                                    };
-                                })
-                                .sort()
-                        "
-                        @searchResultClick="handleSearchResultClicked"
-                    />
+                <div class="mb-6 text-center">
+                    <h1 class="text-3xl font-semibold text-slate-900">
+                        DSP Production Calculator
+                    </h1>
+                </div>
+
+                <div class="flex flex-col mx-6 space-y-6">
+                    <div>
+                        <SearchBar
+                            :options="
+                                recipesStore.recipes
+                                    .map((recipeList) => {
+                                        return {
+                                            text: recipeList[0].name,
+                                            image: recipeList[0].image,
+                                        };
+                                    })
+                                    .sort()
+                            "
+                            @searchResultClick="handleSearchResultClicked"
+                        />
+                    </div>
+
                     <Section
-                        header="Options:"
+                        header="Configuration"
                         v-if="Object.keys(recipesStore.recipeRequests).length > 0"
                     >
-                        <div class="mb-3 ml-4 text-sm">
-                            Group Recipes:
-                            <input
-                                class="ml-1"
-                                type="checkbox"
-                                v-model="recipesStore.groupRecipes"
-                            />
-                        </div>
-                        <div class="mb-3 ml-4 text-sm">
-                            Sort by Depth:
-                            <input class="ml-1" type="checkbox" v-model="depthModeEnabled" />
-                        </div>
-                        <div class="mb-3 ml-4 text-sm">
-                            Default Assembling Machine:
-                            <button
-                                @click="setAssemblerLevel(1)"
-                                class="p-1"
-                                :class="{
-                                    'rounded-md bg-gray-200 border border-white':
-                                        recipesStore.assemblerLevel === 1,
-                                }"
-                            >
-                                <img
-                                    class="inline w-6 h-6"
-                                    :src="
-                                        recipesStore.recipeMap['Assembling Machine Mk.I'][0].image
-                                    "
-                                    :alt="recipesStore.recipeMap['Assembling Machine Mk.I'][0].name"
-                                />
-                            </button>
-                            <button
-                                @click="setAssemblerLevel(2)"
-                                class="p-1"
-                                :class="{
-                                    'rounded-md bg-gray-200 border border-white':
-                                        recipesStore.assemblerLevel === 2,
-                                }"
-                            >
-                                <img
-                                    class="inline w-6 h-6"
-                                    :src="
-                                        recipesStore.recipeMap['Assembling Machine Mk.II'][0].image
-                                    "
-                                    :alt="
-                                        recipesStore.recipeMap['Assembling Machine Mk.II'][0].name
-                                    "
-                                />
-                            </button>
-                            <button
-                                @click="setAssemblerLevel(3)"
-                                class="p-1"
-                                :class="{
-                                    'rounded-md bg-gray-200 border border-white':
-                                        recipesStore.assemblerLevel === 3,
-                                }"
-                            >
-                                <img
-                                    class="inline w-6 h-6"
-                                    :src="
-                                        recipesStore.recipeMap['Assembling Machine Mk.III'][0].image
-                                    "
-                                    :alt="
-                                        recipesStore.recipeMap['Assembling Machine Mk.III'][0].name
-                                    "
-                                />
-                            </button>
-                        </div>
-                        <div class="mb-3 ml-4 text-sm">
-                            Default Smelter:
-                            <button
-                                @click="setSmelterLevel(1)"
-                                class="p-1"
-                                :class="{
-                                    'rounded-md bg-gray-200 border border-white':
-                                        recipesStore.smelterLevel === 1,
-                                }"
-                            >
-                                <img
-                                    class="inline w-6 h-6"
-                                    :src="recipesStore.recipeMap['Arc Smelter'][0].image"
-                                    :alt="recipesStore.recipeMap['Arc Smelter'][0].name"
-                                />
-                            </button>
-                            <button
-                                @click="setSmelterLevel(2)"
-                                class="p-1"
-                                :class="{
-                                    'rounded-md bg-gray-200 border border-white':
-                                        recipesStore.smelterLevel === 2,
-                                }"
-                            >
-                                <img
-                                    class="inline w-6 h-6"
-                                    :src="recipesStore.recipeMap['Plane Smelter'][0].image"
-                                    :alt="recipesStore.recipeMap['Plane Smelter'][0].name"
-                                />
-                            </button>
-                        </div>
-                        <div class="mb-3 ml-4 text-sm">
-                            Default Chemical Plant:
-                            <button
-                                @click="setChemicalPlantLevel(1)"
-                                class="p-1"
-                                :class="{
-                                    'rounded-md bg-gray-200 border border-white':
-                                        recipesStore.chemicalPlantLevel === 1,
-                                }"
-                            >
-                                <img
-                                    class="inline w-6 h-6"
-                                    :src="recipesStore.recipeMap['Chemical Plant'][0].image"
-                                    :alt="recipesStore.recipeMap['Chemical Plant'][0].name"
-                                />
-                            </button>
-                            <button
-                                @click="setChemicalPlantLevel(2)"
-                                class="p-1"
-                                :class="{
-                                    'rounded-md bg-gray-200 border border-white':
-                                        recipesStore.chemicalPlantLevel === 2,
-                                }"
-                            >
-                                <img
-                                    class="inline w-6 h-6"
-                                    :src="recipesStore.recipeMap['Quantum Chemical Plant'][0].image"
-                                    :alt="recipesStore.recipeMap['Quantum Chemical Plant'][0].name"
-                                />
-                            </button>
+                        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-medium text-slate-700">Display Options</h3>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        v-model="recipesStore.groupRecipes"
+                                        class="w-4 h-4 rounded"
+                                    />
+                                    <span class="text-sm text-slate-700">Group Recipes</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        v-model="depthModeEnabled"
+                                        class="w-4 h-4 rounded"
+                                    />
+                                    <span class="text-sm text-slate-700">Sort by Depth</span>
+                                </label>
+                            </div>
+
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-medium text-slate-700">Assembling Machine</h3>
+                                <div class="flex gap-2">
+                                    <button
+                                        @click="setAssemblerLevel(1)"
+                                        class="p-2 border rounded"
+                                        :class="{
+                                            'bg-blue-500 border-blue-500':
+                                                recipesStore.assemblerLevel === 1,
+                                            'bg-white border-slate-300':
+                                                recipesStore.assemblerLevel !== 1,
+                                        }"
+                                        title="Assembling Machine Mk.I"
+                                    >
+                                        <img
+                                            class="w-8 h-8"
+                                            :src="recipesStore.recipeMap['Assembling Machine Mk.I'][0].image"
+                                            :alt="recipesStore.recipeMap['Assembling Machine Mk.I'][0].name"
+                                        />
+                                    </button>
+                                    <button
+                                        @click="setAssemblerLevel(2)"
+                                        class="p-2 border rounded"
+                                        :class="{
+                                            'bg-blue-500 border-blue-500':
+                                                recipesStore.assemblerLevel === 2,
+                                            'bg-white border-slate-300':
+                                                recipesStore.assemblerLevel !== 2,
+                                        }"
+                                        title="Assembling Machine Mk.II"
+                                    >
+                                        <img
+                                            class="w-8 h-8"
+                                            :src="recipesStore.recipeMap['Assembling Machine Mk.II'][0].image"
+                                            :alt="recipesStore.recipeMap['Assembling Machine Mk.II'][0].name"
+                                        />
+                                    </button>
+                                    <button
+                                        @click="setAssemblerLevel(3)"
+                                        class="p-2 border rounded"
+                                        :class="{
+                                            'bg-blue-500 border-blue-500':
+                                                recipesStore.assemblerLevel === 3,
+                                            'bg-white border-slate-300':
+                                                recipesStore.assemblerLevel !== 3,
+                                        }"
+                                        title="Assembling Machine Mk.III"
+                                    >
+                                        <img
+                                            class="w-8 h-8"
+                                            :src="recipesStore.recipeMap['Assembling Machine Mk.III'][0].image"
+                                            :alt="recipesStore.recipeMap['Assembling Machine Mk.III'][0].name"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-medium text-slate-700">Smelter</h3>
+                                <div class="flex gap-2">
+                                    <button
+                                        @click="setSmelterLevel(1)"
+                                        class="p-2 border rounded"
+                                        :class="{
+                                            'bg-blue-500 border-blue-500':
+                                                recipesStore.smelterLevel === 1,
+                                            'bg-white border-slate-300':
+                                                recipesStore.smelterLevel !== 1,
+                                        }"
+                                        title="Arc Smelter"
+                                    >
+                                        <img
+                                            class="w-8 h-8"
+                                            :src="recipesStore.recipeMap['Arc Smelter'][0].image"
+                                            :alt="recipesStore.recipeMap['Arc Smelter'][0].name"
+                                        />
+                                    </button>
+                                    <button
+                                        @click="setSmelterLevel(2)"
+                                        class="p-2 border rounded"
+                                        :class="{
+                                            'bg-blue-500 border-blue-500':
+                                                recipesStore.smelterLevel === 2,
+                                            'bg-white border-slate-300':
+                                                recipesStore.smelterLevel !== 2,
+                                        }"
+                                        title="Plane Smelter"
+                                    >
+                                        <img
+                                            class="w-8 h-8"
+                                            :src="recipesStore.recipeMap['Plane Smelter'][0].image"
+                                            :alt="recipesStore.recipeMap['Plane Smelter'][0].name"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-medium text-slate-700">Chemical Plant</h3>
+                                <div class="flex gap-2">
+                                    <button
+                                        @click="setChemicalPlantLevel(1)"
+                                        class="p-2 border rounded"
+                                        :class="{
+                                            'bg-blue-500 border-blue-500':
+                                                recipesStore.chemicalPlantLevel === 1,
+                                            'bg-white border-slate-300':
+                                                recipesStore.chemicalPlantLevel !== 1,
+                                        }"
+                                        title="Chemical Plant"
+                                    >
+                                        <img
+                                            class="w-8 h-8"
+                                            :src="recipesStore.recipeMap['Chemical Plant'][0].image"
+                                            :alt="recipesStore.recipeMap['Chemical Plant'][0].name"
+                                        />
+                                    </button>
+                                    <button
+                                        @click="setChemicalPlantLevel(2)"
+                                        class="p-2 border rounded"
+                                        :class="{
+                                            'bg-blue-500 border-blue-500':
+                                                recipesStore.chemicalPlantLevel === 2,
+                                            'bg-white border-slate-300':
+                                                recipesStore.chemicalPlantLevel !== 2,
+                                        }"
+                                        title="Quantum Chemical Plant"
+                                    >
+                                        <img
+                                            class="w-8 h-8"
+                                            :src="recipesStore.recipeMap['Quantum Chemical Plant'][0].image"
+                                            :alt="recipesStore.recipeMap['Quantum Chemical Plant'][0].name"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </Section>
-                    <div v-if="selectedRecipeRequest != undefined" class="flex justify-between">
-                        <Section header="Want" class="flex-initial w-5/12 max-w-xs">
-                            <ComputedRecipeRequestList
-                                :selectedRecipeRequest="selectedRecipeRequest"
-                                @recipeRequestClick="handleRecipeRequestClicked"
-                            />
-                        </Section>
-                        <Section header="Need" class="flex-initial w-full mx-3">
+
+                    <Section v-if="selectedRecipeRequest != undefined" header="Production Target" class="flex-initial">
+                        <ComputedRecipeRequestList
+                            :selectedRecipeRequest="selectedRecipeRequest"
+                            @recipeRequestClick="handleRecipeRequestClicked"
+                        />
+                    </Section>
+
+                    <div v-if="selectedRecipeRequest != undefined" class="flex flex-col gap-6 lg:flex-row">
+                        <div class="flex-1">
+                            <h2 class="mb-4 text-lg font-semibold text-slate-900">Required Resources</h2>
                             <ComputedRecipeOutput
                                 :depthMode="depthModeEnabled"
                                 :computedRecipes="computedRecipes"
                             />
-                        </Section>
-                        <Section
-                            v-if="recipeOptionsList && recipeOptionsList.length > 0"
-                            header="Alternate Recipes"
-                            class="flex-initial w-5/12 max-w-xs"
-                        >
-                            <div v-for="recipeOptions of recipeOptionsList">
-                                <RecipeOptionsCard
-                                    :recipeRequest="selectedRecipeRequest"
-                                    :options="recipeOptions"
-                                />
+                        </div>
+                        <div v-if="recipeOptionsList && recipeOptionsList.length > 0" class="border-t lg:border-t-0 lg:border-l border-slate-300 lg:mx-6"></div>
+                        <div v-if="recipeOptionsList && recipeOptionsList.length > 0" class="lg:w-4/12">
+                            <h2 class="mb-4 text-lg font-semibold text-slate-900">Alternate Recipes</h2>
+                            <div class="space-y-4">
+                                <div v-for="recipeOptions of recipeOptionsList" :key="recipeOptions[0].name">
+                                    <RecipeOptionsCard
+                                        :recipeRequest="selectedRecipeRequest"
+                                        :options="recipeOptions"
+                                    />
+                                </div>
                             </div>
-                        </Section>
+                        </div>
                     </div>
                 </div>
             </div>

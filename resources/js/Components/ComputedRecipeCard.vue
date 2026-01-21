@@ -44,27 +44,23 @@ onBeforeUpdate(() => {
 
 <template>
     <Card
-        class="p-2 text-xs"
+        class="text-sm"
         :class="{ 'border-yellow-500': highlighted }"
         :id="computedRecipe.name"
     >
         <template #header>
-            <div>
+            <div class="flex items-center gap-2 text-sm">
                 <img
                     v-if="computedRecipe.image"
-                    class="inline w-5 h-5"
+                    class="inline w-6 h-6"
                     :src="computedRecipe.image"
                     :alt="computedRecipe.name"
                 />
-                {{ computedRecipe.num_crafted_per_sec }}
-                {{ computedRecipe.name }} per sec
+                <span>{{ computedRecipe.name }} {{ computedRecipe.num_crafted_per_sec }}/s</span>
             </div>
         </template>
-        <Divider class="my-2" />
-        <div v-if="computedRecipe.facility" class="mb-2">
-            <span class="font-bold"
-                >{{ computedRecipe.num_facilities_needed == 1 ? 'Facility' : 'Facilities' }}:
-            </span>
+        <div v-if="computedRecipe.facility" class="flex items-center gap-2 text-xs text-slate-600">
+            <span class="font-medium text-slate-700">{{ computedRecipe.num_facilities_needed == 1 ? 'Facility' : 'Facilities' }}:</span>
             <img
                 v-if="
                     recipesStore.recipeMap[computedRecipe.facility] &&
@@ -74,49 +70,54 @@ onBeforeUpdate(() => {
                 :src="recipesStore.recipeMap[computedRecipe.facility][0].image"
                 :alt="computedRecipe.name"
             />
-            {{ computedRecipe.num_facilities_needed }}
-            {{ computedRecipe.facility }}{{ computedRecipe.num_facilities_needed == 1 ? '' : 's' }}
         </div>
-        <div class="font-bold">Consumes:</div>
-        <ul class="mb-2">
-            <li v-for="(val, key) in computedRecipe.items_consumed_per_sec">
-                <ScrollLink
-                    :targetId="`${key}`"
-                    :callback="
-                        () => {
-                            recipesStore.setSelectedRecipe(`${key}`);
-                        }
-                    "
-                >
-                    <img
-                        v-if="recipesStore.recipeMap[key] && recipesStore.recipeMap[key][0]"
-                        class="inline w-5 h-5"
-                        :src="recipesStore.recipeMap[key][0].image"
-                        :alt="computedRecipe.name"
-                    />
-                    {{ key }}: {{ val }}/s
-                </ScrollLink>
-            </li>
-        </ul>
-        <div class="font-bold" v-if="computedRecipe.used_for !== ''">For:</div>
-        <ul class="mb-2">
-            <li v-for="(usesStr, parentRecipeName) in usedFor">
-                <ScrollLink
-                    :targetId="(parentRecipeName as string)"
-                    :callback="() => { recipesStore.setSelectedRecipe(parentRecipeName as string); }"
-                >
-                    <img
-                        v-if="
-                            recipesStore.recipeMap[parentRecipeName] &&
-                            recipesStore.recipeMap[parentRecipeName][0]
+        <div>{{ computedRecipe.num_facilities_needed }} {{ computedRecipe.facility }}{{ computedRecipe.num_facilities_needed == 1 ? '' : 's' }}</div>
+        <div class="mt-3 space-y-3">
+            <div v-if="Object.keys(computedRecipe.items_consumed_per_sec || {}).length > 0">
+                <div class="mb-2 text-xs font-medium text-slate-700">Consumes:</div>
+                <div class="flex flex-wrap gap-2">
+                    <ScrollLink
+                        v-for="(val, key) in computedRecipe.items_consumed_per_sec"
+                        :targetId="`${key}`"
+                        :callback="
+                            () => {
+                                recipesStore.setSelectedRecipe(`${key}`);
+                            }
                         "
-                        class="inline w-5 h-5"
-                        :src="recipesStore.recipeMap[parentRecipeName][0].image"
-                        :alt="computedRecipe.name"
-                    />
-                    {{ parentRecipeName }} {{ usesStr }}
-                </ScrollLink>
-            </li>
-        </ul>
+                        class="inline-flex items-center gap-1 px-2 py-1 text-xs border rounded bg-slate-50 border-slate-300 hover:border-slate-400 hover:bg-slate-100"
+                    >
+                        <img
+                            v-if="recipesStore.recipeMap[key] && recipesStore.recipeMap[key][0]"
+                            class="inline w-4 h-4"
+                            :src="recipesStore.recipeMap[key][0].image"
+                            :alt="computedRecipe.name"
+                        />
+                        <span>{{ key }}: {{ val }}/s</span>
+                    </ScrollLink>
+                </div>
+            </div>
+            <div v-if="computedRecipe.used_for !== ''">
+                <div class="mb-2 text-xs font-medium text-slate-700">For:</div>
+                <div class="flex flex-wrap gap-2">
+                    <ScrollLink
+                        v-for="(usesStr, parentRecipeName) in usedFor"
+                        :targetId="(parentRecipeName as string)"
+                        :callback="() => { recipesStore.setSelectedRecipe(parentRecipeName as string); }"
+                        class="inline-flex items-center gap-1 px-2 py-1 text-xs border rounded bg-slate-50 border-slate-300 hover:border-slate-400 hover:bg-slate-100"
+                    >
+                        <img
+                            v-if="
+                                recipesStore.recipeMap[parentRecipeName] &&
+                                recipesStore.recipeMap[parentRecipeName][0]
+                            "
+                            class="inline w-4 h-4"
+                            :src="recipesStore.recipeMap[parentRecipeName][0].image"
+                            :alt="computedRecipe.name"
+                        />
+                        <span>{{ parentRecipeName }} {{ usesStr }}</span>
+                    </ScrollLink>
+                </div>
+            </div>
+        </div>
     </Card>
 </template>

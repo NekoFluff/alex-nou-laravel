@@ -39,13 +39,13 @@ const handleSearchResultClicked = (result: string) => {
     <div class="relative mb-3">
         <input
             :value="text"
-            class="w-full p-2 text-black bg-white rounded-md shadow-md outline-none placeholder-slate-700"
+            class="w-full px-4 py-3 bg-white border border-slate-300 rounded outline-none text-slate-900 placeholder-slate-400 focus:border-slate-900"
             type="text"
-            placeholder="Search..."
+            placeholder="Search for a recipe..."
             @input="handleUpdate(($event.target as HTMLInputElement).value)"
         />
         <SearchResultList
-            class="absolute w-full mt-3 rounded-md"
+            class="absolute z-10 w-full mt-1 overflow-hidden rounded"
             :results="filteredOptions"
             @searchResultClick="handleSearchResultClicked"
         />

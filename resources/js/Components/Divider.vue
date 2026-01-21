@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
 
 <template>
-    <hr class="w-full h-0.5 mx-auto border-0 rounded bg-gray-500" />
+    <hr class="w-full h-px mx-auto border-0 rounded bg-slate-300" />
 </template>

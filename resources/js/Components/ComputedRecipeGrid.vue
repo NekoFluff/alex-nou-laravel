@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-    <div class="grid md:grid-cols-1 lg:grid-cols-3">
+    <div class="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
         <ComputedRecipeCard
             v-for="computedRecipe in computedRecipes"
             :computedRecipe="computedRecipe"

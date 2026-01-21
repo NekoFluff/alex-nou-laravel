@@ -68,7 +68,7 @@ class ComputedRecipeController extends Controller
             if ($a->usedFor !== $b->usedFor) {
                 return $a->usedFor <=> $b->usedFor;
             }
-            return $a->crafting_per_sec <=> $b->crafting_per_sec;
+            return $a->num_crafted_per_sec <=> $b->num_crafted_per_sec;
         });
 
         return $computedRecipes;
@@ -90,7 +90,7 @@ class ComputedRecipeController extends Controller
 
                 $oldNum = $uRecipe->num_facilities_needed;
                 $newNum = $recipe->num_facilities_needed;
-                $totalNum = $oldNum + $newNum;
+                $totalNum = $oldNum + $newNum > 0 ? $oldNum + $newNum : 1;
                 $tmp = $uRecipe->items_consumed_per_sec;
                 foreach ($tmp as $materialName => $perSecConsumption) {
                     $tmp[$materialName] = $perSecConsumption + $recipe->items_consumed_per_sec[$materialName];
@@ -98,14 +98,14 @@ class ComputedRecipeController extends Controller
                 $uRecipe->items_consumed_per_sec = $tmp;
 
                 $uRecipe->seconds_spent_per_craft = ($uRecipe->seconds_spent_per_craft * $oldNum + $recipe->seconds_spent_per_craft * $newNum) / $totalNum;
-                $uRecipe->crafting_per_sec = $uRecipe->crafting_per_sec + $recipe->crafting_per_sec;
-                $uRecipe->used_for = sprintf('%s | %s (Uses %0.2f/s)', $uRecipe->used_for, $recipe->used_for, $recipe->crafting_per_sec);
+                $uRecipe->num_crafted_per_sec = $uRecipe->num_crafted_per_sec + $recipe->num_crafted_per_sec;
+                $uRecipe->used_for = sprintf('%s | %s (Uses %0.2f/s)', $uRecipe->used_for, $recipe->used_for, $recipe->num_crafted_per_sec);
                 $uRecipe->num_facilities_needed += $recipe->num_facilities_needed;
                 $uRecipe->depth = max($uRecipe->depth, $recipe->depth);
                 $uniqueRecipes[$recipe->name] = $uRecipe;
             } else {
                 if ($recipe->used_for !== '') {
-                    $recipe->used_for = sprintf('%s (Uses %0.2f/s)', $recipe->used_for, $recipe->crafting_per_sec);
+                    $recipe->used_for = sprintf('%s (Uses %0.2f/s)', $recipe->used_for, $recipe->num_crafted_per_sec);
                 }
                 $uniqueRecipes[$recipe->name] = $recipe;
             }
