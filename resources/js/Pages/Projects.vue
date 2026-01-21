@@ -8,7 +8,7 @@ import ProjectCard from '@/Components/ProjectCard.vue';
     <Head title="Projects" />
     <GenericLayout>
         <div class="py-12" aria-labelledby="projects-heading">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <h1 id="projects-heading" class="sr-only">My Projects</h1>
                 <div class="grid gap-4 md:grid-cols-3 xs:grid-cols-1">
                     <ProjectCard :link="route('dsp')" icon="project">
