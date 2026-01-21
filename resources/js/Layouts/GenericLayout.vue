@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import SocialMediaBar from '@/Components/SocialMediaBar.vue';
@@ -8,8 +7,8 @@ import PageViewTracker from '@/Components/PageViewTracker.vue';
 
 <template>
     <div>
-        <div class="min-h-screen bg-gray-100">
-            <nav class="bg-white border-b border-gray-100">
+        <div class="min-h-screen bg-gray-50">
+            <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
                 <!-- Primary Navigation Menu -->
                 <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div class="justify-between hidden h-16 sm:flex">
@@ -22,7 +21,7 @@ import PageViewTracker from '@/Components/PageViewTracker.vue';
                             </div>
 
                             <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <div class="flex items-center h-16 space-x-1 sm:ms-10">
                                 <NavLink
                                     :href="route('welcome')"
                                     :active="route().current('welcome')"
@@ -86,8 +85,10 @@ import PageViewTracker from '@/Components/PageViewTracker.vue';
             </main>
 
             <!-- Page Footer -->
-            <footer class="sticky bottom-0 z-20 flex justify-center pb-3 mt-6 sm:block sm:ml-10">
-                <SocialMediaBar />
+            <footer class="pb-6 mt-12 border-t border-gray-200 sm:mt-16">
+                <div class="flex justify-center pt-6">
+                    <SocialMediaBar />
+                </div>
             </footer>
         </div>
     </div>

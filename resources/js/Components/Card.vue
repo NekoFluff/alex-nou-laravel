@@ -1,14 +1,20 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div class="flex flex-col gap-2 p-3 m-3 border border-gray-500 rounded-md shadow-lg">
-        <div data-cy="header" class="font-bold">
+    <div
+        class="flex flex-col gap-3 p-4 transition-all duration-300 bg-white border border-gray-200 shadow-lg sm:gap-4 sm:p-6 rounded-xl sm:rounded-2xl hover:shadow-2xl sm:hover:-translate-y-1"
+    >
+        <div data-cy="header" class="pb-2 border-b border-gray-100 sm:pb-3">
             <slot name="header"></slot>
         </div>
         <div data-cy="body" class="flex-grow">
             <slot></slot>
         </div>
-        <div data-cy="footer" v-if="!!$slots.actions" class="flex justify-end pb-2 mt-5">
+        <div
+            data-cy="footer"
+            v-if="!!$slots.actions"
+            class="flex justify-end pt-3 mt-3 border-t border-gray-100 sm:pt-4 sm:mt-4"
+        >
             <slot name="actions"></slot>
         </div>
     </div>

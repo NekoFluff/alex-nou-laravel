@@ -22,6 +22,13 @@ import ProjectCard from '@/Components/ProjectCard.vue';
                         <template #header>WAH Tako</template>
                         <p>Calulates how profitable it is to craft items in the game FFXIV.</p>
                     </ProjectCard>
+                    <ProjectCard link="https://jpimagetranslator.com" externalLink icon="project">
+                        <template #header>JP Image Translator</template>
+                        <p>
+                            Translate Japanese text in images using AI-powered OCR and translation
+                            technology.
+                        </p>
+                    </ProjectCard>
                 </div>
             </div>
         </div>
