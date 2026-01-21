@@ -10,10 +10,8 @@ import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 import VCalendar from "v-calendar";
 import "v-calendar/style.css";
 
-const appName = import.meta.env.VITE_APP_NAME || "Laravel";
-
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => `${title}`,
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.vue`,
