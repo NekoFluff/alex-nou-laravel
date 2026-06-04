@@ -31,4 +31,8 @@ return [
         ],
     ],
 
+    'wanikani' => [
+        'api_token' => env('WANIKANI_API_TOKEN'),
+    ],
+
 ];

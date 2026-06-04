@@ -21,7 +21,7 @@ class WanikaniClient implements WanikaniClientInterface
             'timeout' => 10.0,
             'handler' => $stack,
             'headers' => [
-                'Authorization' => 'Bearer ' . env('WANIKANI_API_TOKEN'),
+                'Authorization' => 'Bearer ' . config('services.wanikani.api_token'),
             ],
         ]);
     }
