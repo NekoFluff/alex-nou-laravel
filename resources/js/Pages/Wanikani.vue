@@ -25,9 +25,12 @@ const projectionMode = ref<'median' | 'average'>('median');
 <template>
     <Head title="WaniKani Progress" />
     <GenericLayout>
-        <div class="px-4 py-12 mx-auto max-w-7xl sm:px-8">
-            <h1 class="mx-4 text-xl">WaniKani progress tracker</h1>
-            <p class="mx-4 mt-2 text-sm italic text-gray-500">
+        <div class="px-4 py-16 mx-auto max-w-7xl sm:px-8">
+            <p class="mx-4 text-xs font-semibold tracking-widest text-gray-400 uppercase">Progress Tracker</p>
+            <h1 class="mx-4 mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                WaniKani
+            </h1>
+            <p class="mx-4 mt-2 text-sm text-gray-500 sm:text-base">
                 Tracking my WaniKani level-up pace against a {{ goalDays }}-day-per-level goal.
             </p>
 
