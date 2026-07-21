@@ -24,6 +24,7 @@ class WanikaniController extends Controller
         return Inertia::render('Wanikani', [
             'levelProgressions' => $levelProgressions, // skip first 12 values since I reset my account
             'currentLevel' => end($levelProgressions)->level,
+            'itemCountsByLevel' => $this->client->getItemCountsByLevel(),
         ]);
     }
 }

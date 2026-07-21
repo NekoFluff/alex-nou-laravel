@@ -2,13 +2,16 @@
 import { LevelProgression } from '@/types/levelProgression';
 import { addDays, diffDays } from '@/utils/date';
 import { average, median } from '@/utils/pace';
+import { daysForLevel } from '@/utils/itemPace';
 import { computed, nextTick, onMounted, ref } from 'vue';
 
 const props = defineProps<{
     levelProgressions: LevelProgression[];
     currentLevel: number;
     goalDays: number;
-    projectionMode: 'median' | 'average';
+    projectionMode: 'median' | 'average' | 'items';
+    itemCountsByLevel: Record<number, number>;
+    itemsPerDay: number;
 }>();
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -23,10 +26,17 @@ const durations = computed(() =>
 
 const recentDurations = computed(() => durations.value.slice(-10));
 
-const pace = computed(() => {
+const constantPace = computed(() => {
     const value = props.projectionMode === 'median' ? median(durations.value) : average(recentDurations.value);
     return value ?? props.goalDays;
 });
+
+const paceForLevel = (level: number) => {
+    if (props.projectionMode === 'items') {
+        return daysForLevel(level, props.itemCountsByLevel, props.itemsPerDay, constantPace.value);
+    }
+    return constantPace.value;
+};
 
 const actualRows = computed(() =>
     [...props.levelProgressions]
@@ -40,8 +50,9 @@ const actualRows = computed(() =>
                 level: lp.level,
                 startedAt,
                 passedAt: lp.passed_at ? new Date(lp.passed_at) : null,
-                projectedPassedAt: inProgress ? addDays(startedAt, pace.value) : null,
+                projectedPassedAt: inProgress ? addDays(startedAt, paceForLevel(lp.level)) : null,
                 durationDays,
+                guesstimateDays: Math.round(paceForLevel(lp.level)),
                 inProgress,
                 isProjected: false,
                 metGoal: !inProgress && durationDays <= props.goalDays,
@@ -59,6 +70,7 @@ const futureRows = computed(() => {
         passedAt: Date | null;
         projectedPassedAt: Date | null;
         durationDays: number;
+        guesstimateDays: number | null;
         inProgress: boolean;
         isProjected: boolean;
         metGoal: boolean;
@@ -67,13 +79,15 @@ const futureRows = computed(() => {
     let cursor = lastActual.passedAt ?? lastActual.projectedPassedAt ?? new Date();
     for (let level = lastActual.level + 1; level <= 60; level++) {
         const startedAt = cursor;
-        const projectedPassedAt = addDays(startedAt, pace.value);
+        const levelPace = paceForLevel(level);
+        const projectedPassedAt = addDays(startedAt, levelPace);
         rows.push({
             level,
             startedAt: null,
             passedAt: null,
             projectedPassedAt,
-            durationDays: Math.round(pace.value),
+            durationDays: Math.round(levelPace),
+            guesstimateDays: null,
             inProgress: false,
             isProjected: true,
             metGoal: false,
@@ -162,6 +176,9 @@ onMounted(() => {
                                 ]"
                             >
                                 {{ row.durationDays }}d
+                            </span>
+                            <span v-if="row.guesstimateDays !== null" class="text-gray-400">
+                                (~{{ row.guesstimateDays }}d)
                             </span>
                         </td>
                     </tr>

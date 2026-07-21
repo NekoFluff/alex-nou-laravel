@@ -11,15 +11,17 @@ import { LevelProgression } from '@/types/levelProgression';
 const props = defineProps<{
     levelProgressions: LevelProgression[];
     currentLevel: number;
+    itemCountsByLevel: Record<number, number>;
 }>();
 
 const goalDays = 14;
+const itemsPerDay = 15;
 
 const currentProgression = computed(() =>
     props.levelProgressions.find((lp) => lp.level === props.currentLevel),
 );
 
-const projectionMode = ref<'median' | 'average'>('median');
+const projectionMode = ref<'median' | 'average' | 'items'>('median');
 </script>
 
 <template>
@@ -38,6 +40,8 @@ const projectionMode = ref<'median' | 'average'>('median');
                 <WanikaniStats
                     :level-progressions="levelProgressions"
                     :current-level="currentLevel"
+                    :item-counts-by-level="itemCountsByLevel"
+                    :items-per-day="itemsPerDay"
                     v-model:projection-mode="projectionMode"
                 />
             </div>
@@ -61,6 +65,8 @@ const projectionMode = ref<'median' | 'average'>('median');
                     :current-level="currentLevel"
                     :goal-days="goalDays"
                     :projection-mode="projectionMode"
+                    :item-counts-by-level="itemCountsByLevel"
+                    :items-per-day="itemsPerDay"
                 />
             </div>
         </div>

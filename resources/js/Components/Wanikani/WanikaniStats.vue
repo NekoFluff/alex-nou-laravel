@@ -2,16 +2,23 @@
 import { LevelProgression } from '@/types/levelProgression';
 import { addDays, diffDays } from '@/utils/date';
 import { average, median } from '@/utils/pace';
+import { daysForLevel } from '@/utils/itemPace';
 import { computed } from 'vue';
+
+type ProjectionMode = 'median' | 'average' | 'items';
+
+const projectionModes: ProjectionMode[] = ['median', 'average', 'items'];
 
 const props = defineProps<{
     levelProgressions: LevelProgression[];
     currentLevel: number;
-    projectionMode: 'median' | 'average';
+    projectionMode: ProjectionMode;
+    itemCountsByLevel: Record<number, number>;
+    itemsPerDay: number;
 }>();
 
 const emit = defineEmits<{
-    'update:projectionMode': [mode: 'median' | 'average'];
+    'update:projectionMode': [mode: ProjectionMode];
 }>();
 
 const completedLevels = computed(() =>
@@ -37,20 +44,34 @@ const averagePace = computed(() => {
 
 const medianPace = computed(() => median(durations.value));
 
+const fallbackPace = computed(() => medianPace.value ?? 14);
+
 const toggleProjectionMode = () => {
-    emit('update:projectionMode', props.projectionMode === 'median' ? 'average' : 'median');
+    const nextIndex = (projectionModes.indexOf(props.projectionMode) + 1) % projectionModes.length;
+    emit('update:projectionMode', projectionModes[nextIndex]);
 };
 
-const projectionPace = computed(() =>
-    props.projectionMode === 'median' ? medianPace.value : averagePace.value,
-);
-
 const projectedLevel60Date = computed(() => {
-    if (!projectionPace.value || props.currentLevel >= 60) return null;
+    if (props.currentLevel >= 60) return null;
     const anchor = currentProgression.value?.started_at ? new Date(currentProgression.value.started_at) : new Date();
+
+    if (props.projectionMode === 'items') {
+        let totalDays = 0;
+        for (let level = props.currentLevel; level <= 60; level++) {
+            totalDays += daysForLevel(level, props.itemCountsByLevel, props.itemsPerDay, fallbackPace.value);
+        }
+        return addDays(anchor, totalDays);
+    }
+
+    const pace = props.projectionMode === 'median' ? medianPace.value : averagePace.value;
+    if (!pace) return null;
     const levelsToComplete = 60 - props.currentLevel + 1;
-    return addDays(anchor, projectionPace.value * levelsToComplete);
+    return addDays(anchor, pace * levelsToComplete);
 });
+
+const projectionModeLabel = computed(() =>
+    props.projectionMode === 'items' ? `${props.itemsPerDay} items/day` : `${props.projectionMode} pace`,
+);
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 </script>
@@ -83,7 +104,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'n
             <p class="mt-1 text-3xl font-bold text-gray-800">
                 {{ projectedLevel60Date ? dateFormatter.format(projectedLevel60Date) : '—' }}
             </p>
-            <p class="mt-1 text-xs text-gray-400">at {{ projectionMode }} pace</p>
+            <p class="mt-1 text-xs text-gray-400">at {{ projectionModeLabel }}</p>
         </button>
     </div>
 </template>
