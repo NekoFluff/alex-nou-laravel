@@ -12,6 +12,7 @@ const props = defineProps<{
 }>();
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const shortDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 
 const durations = computed(() =>
     props.levelProgressions
@@ -99,14 +100,14 @@ onMounted(() => {
 
 <template>
     <div class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
-        <div ref="scrollContainer" class="max-h-[28rem] overflow-y-auto">
+        <div ref="scrollContainer" class="max-h-[28rem] overflow-x-auto overflow-y-auto">
             <table class="w-full text-sm">
                 <thead class="sticky top-0 bg-gray-50">
                     <tr class="text-xs font-medium tracking-wide text-left text-gray-500 uppercase">
-                        <th class="px-4 py-3 sm:px-6">Level</th>
-                        <th class="hidden px-4 py-3 sm:table-cell sm:px-6">Started</th>
-                        <th class="hidden px-4 py-3 sm:table-cell sm:px-6">Passed</th>
-                        <th class="px-4 py-3 sm:px-6">Duration</th>
+                        <th class="px-2 py-3 sm:px-6">Level</th>
+                        <th class="px-2 py-3 sm:px-6">Started</th>
+                        <th class="px-2 py-3 sm:px-6">Passed</th>
+                        <th class="px-2 py-3 sm:px-6">Duration</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -118,7 +119,7 @@ onMounted(() => {
                         :class="[row.inProgress && 'bg-indigo-50/50', row.isProjected && 'text-gray-400']"
                     >
                         <td
-                            class="px-4 py-3 font-semibold sm:px-6"
+                            class="px-2 py-3 font-semibold whitespace-nowrap sm:px-6"
                             :class="row.isProjected ? 'text-gray-400' : 'text-gray-800'"
                         >
                             {{ row.level }}
@@ -129,15 +130,25 @@ onMounted(() => {
                                 current
                             </span>
                         </td>
-                        <td class="hidden px-4 py-3 sm:table-cell sm:px-6" :class="row.isProjected ? 'text-gray-400' : 'text-gray-500'">
-                            {{ row.startedAt ? dateFormatter.format(row.startedAt) : '—' }}
-                        </td>
-                        <td class="hidden px-4 py-3 sm:table-cell sm:px-6" :class="row.isProjected ? 'italic text-gray-400' : 'text-gray-500'">
-                            <template v-if="row.passedAt">{{ dateFormatter.format(row.passedAt) }}</template>
-                            <template v-else-if="row.projectedPassedAt">~{{ dateFormatter.format(row.projectedPassedAt) }}</template>
+                        <td class="px-2 py-3 whitespace-nowrap sm:px-6" :class="row.isProjected ? 'text-gray-400' : 'text-gray-500'">
+                            <template v-if="row.startedAt">
+                                <span class="sm:hidden">{{ shortDateFormatter.format(row.startedAt) }}</span>
+                                <span class="hidden sm:inline">{{ dateFormatter.format(row.startedAt) }}</span>
+                            </template>
                             <template v-else>—</template>
                         </td>
-                        <td class="px-4 py-3 sm:px-6">
+                        <td class="px-2 py-3 whitespace-nowrap sm:px-6" :class="row.isProjected ? 'italic text-gray-400' : 'text-gray-500'">
+                            <template v-if="row.passedAt">
+                                <span class="sm:hidden">{{ shortDateFormatter.format(row.passedAt) }}</span>
+                                <span class="hidden sm:inline">{{ dateFormatter.format(row.passedAt) }}</span>
+                            </template>
+                            <template v-else-if="row.projectedPassedAt">
+                                <span class="sm:hidden">~{{ shortDateFormatter.format(row.projectedPassedAt) }}</span>
+                                <span class="hidden sm:inline">~{{ dateFormatter.format(row.projectedPassedAt) }}</span>
+                            </template>
+                            <template v-else>—</template>
+                        </td>
+                        <td class="px-2 py-3 sm:px-6">
                             <span
                                 :class="[
                                     'font-medium',
