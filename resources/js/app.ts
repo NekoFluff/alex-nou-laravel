@@ -7,9 +7,6 @@ import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 
-import VCalendar from "v-calendar";
-import "v-calendar/style.css";
-
 createInertiaApp({
     title: (title) => `${title}`,
     resolve: (name) =>
@@ -23,7 +20,6 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(pinia)
-            .use(VCalendar, {})
             .mount(el);
     },
     progress: {
