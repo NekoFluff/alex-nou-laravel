@@ -1,23 +1,20 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faGithub, faLinkedin, faXTwitter } from '@fortawesome/free-brands-svg-icons';
+import { socialLinks } from '@/socialLinks';
 </script>
 
 <template>
     <div class="p-4 bg-white rounded-lg shadow-md w-min">
         <nav class="flex space-x-10">
-            <a href="https://twitter.com/SheavinNou" target="_blank" rel="noopener noreferrer">
-                <FontAwesomeIcon :icon="faXTwitter" size="lg" />
-            </a>
             <a
-                href="https://www.linkedin.com/in/alex-nou-271323138/"
+                v-for="social in socialLinks"
+                :key="social.name"
+                :href="social.href"
                 target="_blank"
                 rel="noopener noreferrer"
+                :aria-label="social.name"
             >
-                <FontAwesomeIcon :icon="faLinkedin" size="lg" />
-            </a>
-            <a href="https://github.com/NekoFluff" target="_blank" rel="noopener noreferrer">
-                <FontAwesomeIcon :icon="faGithub" size="lg" />
+                <FontAwesomeIcon :icon="social.icon" size="lg" />
             </a>
         </nav>
     </div>

@@ -1,86 +1,138 @@
 <script setup lang="ts">
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
+import { ref, watch } from 'vue';
+import { Link } from '@inertiajs/vue3';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
 import SocialMediaBar from '@/Components/SocialMediaBar.vue';
 import PageViewTracker from '@/Components/PageViewTracker.vue';
+import { socialLinks } from '@/socialLinks';
+
+const navItems = [
+    { name: 'Home', route: 'welcome' },
+    { name: 'Projects', route: 'projects' },
+    { name: 'WaniKani', route: 'wanikani' },
+];
+
+const isActive = (routeName: string) => route().current(routeName);
+
+const mobileMenuOpen = ref(false);
+
+watch(mobileMenuOpen, (open) => {
+    document.body.style.overflow = open ? 'hidden' : '';
+});
 </script>
 
 <template>
     <div>
         <div class="min-h-screen bg-gray-50">
-            <nav class="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm" role="navigation" aria-label="Main navigation">
-                <!-- Primary Navigation Menu -->
+            <header class="sticky top-0 z-50 border-b border-gray-200/80 bg-white/80 backdrop-blur-md">
                 <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div class="justify-between hidden h-16 sm:flex">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="flex items-center shrink-0">
-                                <!-- <Link :href="route('dashboard')">
-                                <ApplicationLogo class="block w-auto text-gray-800 fill-current h-9" />
-                                </Link> -->
-                            </div>
-
-                            <!-- Navigation Links -->
-                            <div class="flex items-center h-16 space-x-1 sm:ms-10">
-                                <NavLink
-                                    :href="route('welcome')"
-                                    :active="route().current('welcome')"
-                                    aria-label="Go to home page"
-                                >
-                                    Home
-                                </NavLink>
-                                <NavLink
-                                    :href="route('projects')"
-                                    :active="route().current('projects')"
-                                    aria-label="View projects"
-                                >
-                                    Projects
-                                </NavLink>
-                                <NavLink
-                                    :href="route('wanikani')"
-                                    :active="route().current('wanikani')"
-                                    aria-label="View WaniKani dashboard"
-                                >
-                                    WaniKani
-                                </NavLink>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Responsive Navigation Menu -->
-                <div class="sm:hidden">
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink
+                    <div class="flex items-center justify-between h-16">
+                        <!-- Logo / Wordmark -->
+                        <Link
                             :href="route('welcome')"
-                            :active="route().current('welcome')"
+                            class="flex items-center gap-2.5 shrink-0 group"
+                            aria-label="Go to home page"
                         >
-                            Home
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('projects')"
-                            :active="route().current('projects')"
-                        >
-                            Projects
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('wanikani')"
-                            :active="route().current('wanikani')"
-                        >
-                            WaniKani
-                        </ResponsiveNavLink>
-                    </div>
+                            <span
+                                class="flex items-center justify-center text-sm font-bold text-white transition-transform bg-gray-900 rounded-xl h-9 w-9 group-hover:scale-105"
+                            >
+                                AN
+                            </span>
+                            <span class="hidden text-base font-semibold tracking-tight text-gray-900 sm:block">
+                                Alex Nou
+                            </span>
+                        </Link>
 
-                    <!-- Responsive Settings Options -->
+                        <!-- Desktop nav -->
+                        <nav
+                            class="items-center hidden gap-1 p-1 bg-gray-100 rounded-full sm:flex"
+                            aria-label="Primary"
+                        >
+                            <Link
+                                v-for="item in navItems"
+                                :key="item.route"
+                                :href="route(item.route)"
+                                :class="[
+                                    'rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-150',
+                                    isActive(item.route)
+                                        ? 'bg-white text-gray-900 shadow-sm'
+                                        : 'text-gray-500 hover:text-gray-900',
+                                ]"
+                            >
+                                {{ item.name }}
+                            </Link>
+                        </nav>
+
+                        <!-- Desktop socials -->
+                        <div class="items-center hidden gap-4 sm:flex">
+                            <a
+                                v-for="social in socialLinks"
+                                :key="social.name"
+                                :href="social.href"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                :aria-label="social.name"
+                                class="text-gray-400 transition-colors hover:text-gray-900"
+                            >
+                                <FontAwesomeIcon :icon="social.icon" size="lg" />
+                            </a>
+                        </div>
+
+                        <!-- Mobile hamburger -->
+                        <button
+                            type="button"
+                            @click="mobileMenuOpen = !mobileMenuOpen"
+                            class="inline-flex items-center justify-center text-gray-500 transition-colors rounded-lg sm:hidden h-9 w-9 hover:bg-gray-100 hover:text-gray-900"
+                            :aria-expanded="mobileMenuOpen"
+                            aria-controls="mobile-menu"
+                            aria-label="Toggle navigation menu"
+                        >
+                            <FontAwesomeIcon :icon="mobileMenuOpen ? faXmark : faBars" size="lg" />
+                        </button>
+                    </div>
                 </div>
-            </nav>
+
+                <!-- Mobile menu -->
+                <Transition
+                    enter-active-class="transition duration-200 ease-out"
+                    enter-from-class="-translate-y-2 opacity-0"
+                    enter-to-class="translate-y-0 opacity-100"
+                    leave-active-class="transition duration-150 ease-in"
+                    leave-from-class="translate-y-0 opacity-100"
+                    leave-to-class="-translate-y-2 opacity-0"
+                >
+                    <div
+                        v-if="mobileMenuOpen"
+                        id="mobile-menu"
+                        class="border-t border-gray-200 sm:hidden bg-white/95 backdrop-blur-md"
+                    >
+                        <nav class="px-4 pt-3 pb-4 space-y-1" aria-label="Mobile">
+                            <Link
+                                v-for="item in navItems"
+                                :key="item.route"
+                                :href="route(item.route)"
+                                @click="mobileMenuOpen = false"
+                                :class="[
+                                    'block rounded-xl px-4 py-2.5 text-base font-medium transition-colors',
+                                    isActive(item.route)
+                                        ? 'bg-indigo-50 text-indigo-600'
+                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
+                                ]"
+                            >
+                                {{ item.name }}
+                            </Link>
+                        </nav>
+                    </div>
+                </Transition>
+            </header>
 
             <!-- Page Heading -->
-            <header class="bg-white shadow" v-if="$slots.header">
+            <div class="bg-white shadow" v-if="$slots.header">
                 <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
-            </header>
+            </div>
 
             <!-- Page Content -->
             <main>
