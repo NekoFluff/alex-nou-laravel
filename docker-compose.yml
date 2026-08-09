@@ -1,13 +1,39 @@
 services:
-    # Database
-    db:
-        image: mysql:8.3
+    app:
+        image: alexnou/app:dev
+        container_name: alexnou
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - '8000:8000'
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+        working_dir: /var/www/
+        volumes:
+            - .:/var/www
+        command: 'php artisan serve --host=0.0.0.0 --port=8000'
+        depends_on:
+            - mysql
+
+    npm:
+        image: alexnou/app:dev
+        container_name: alexnou-npm
+        ports:
+            - '5173:5173'
+        working_dir: /var/www/
+        volumes:
+            - .:/var/www
+        command: 'npm run dev'
+
+    mysql:
+        image: mysql:8.4
         container_name: alexnou-db
         environment:
-            MYSQL_DATABASE: 'alexnou'
-            MYSQL_USER: 'forge'
-            MYSQL_PASSWORD: 'forge'
-            MYSQL_ROOT_PASSWORD: 'forge'
+            MYSQL_DATABASE: 'forge'
+            MYSQL_USER: 'alexnou'
+            MYSQL_PASSWORD: 'secret'
+            MYSQL_ROOT_PASSWORD: 'secret'
         ports:
             - '3306:3306'
         volumes:

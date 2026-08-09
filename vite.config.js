@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     plugins: [
         laravel({
             input: 'resources/js/app.ts',
@@ -17,6 +17,14 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        host: true,
+        hmr: command === 'serve' ? {
+            host: 'localhost'
+        } : {},
+        port: 5173,
+        strictPort: true,
+    },
     build: {
         rollupOptions: {
             output: {
@@ -34,4 +42,4 @@ export default defineConfig({
         },
         sourcemap: false,
     },
-});
+}));
