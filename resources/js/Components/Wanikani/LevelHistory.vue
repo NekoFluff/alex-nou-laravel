@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { LevelProgression } from '@/types/levelProgression';
+import { ProjectionMode } from '@/types/projectionMode';
 import { addDays, diffDays } from '@/utils/date';
-import { average, median } from '@/utils/pace';
-import { daysForLevel } from '@/utils/itemPace';
+import { buildPaceContext, paceForLevel as computePaceForLevel } from '@/utils/projection';
 import { computed, nextTick, onMounted, ref } from 'vue';
 
 const props = defineProps<{
     levelProgressions: LevelProgression[];
     currentLevel: number;
     goalDays: number;
-    projectionMode: 'median' | 'average' | 'items';
+    projectionMode: ProjectionMode;
     itemCountsByLevel: Record<number, number>;
     itemsPerDay: number;
 }>();
@@ -17,26 +17,11 @@ const props = defineProps<{
 const dateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 const shortDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 
-const durations = computed(() =>
-    props.levelProgressions
-        .filter((lp) => lp.started_at && lp.passed_at)
-        .sort((a, b) => a.level - b.level)
-        .map((lp) => diffDays(lp.started_at, lp.passed_at)),
+const paceContext = computed(() =>
+    buildPaceContext(props.levelProgressions, props.goalDays, props.itemsPerDay, props.itemCountsByLevel),
 );
 
-const recentDurations = computed(() => durations.value.slice(-10));
-
-const constantPace = computed(() => {
-    const value = props.projectionMode === 'median' ? median(durations.value) : average(recentDurations.value);
-    return value ?? props.goalDays;
-});
-
-const paceForLevel = (level: number) => {
-    if (props.projectionMode === 'items') {
-        return daysForLevel(level, props.itemCountsByLevel, props.itemsPerDay, constantPace.value);
-    }
-    return constantPace.value;
-};
+const paceForLevel = (level: number) => computePaceForLevel(level, props.projectionMode, paceContext.value);
 
 const actualRows = computed(() =>
     [...props.levelProgressions]

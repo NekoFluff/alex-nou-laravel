@@ -7,6 +7,7 @@ import CurrentLevelProgress from '@/Components/Wanikani/CurrentLevelProgress.vue
 import PaceBarChartApex from '@/Components/Wanikani/PaceBarChartApex.vue';
 import LevelHistory from '@/Components/Wanikani/LevelHistory.vue';
 import { LevelProgression } from '@/types/levelProgression';
+import { ProjectionMode } from '@/types/projectionMode';
 
 const props = defineProps<{
     levelProgressions: LevelProgression[];
@@ -21,7 +22,7 @@ const currentProgression = computed(() =>
     props.levelProgressions.find((lp) => lp.level === props.currentLevel),
 );
 
-const projectionMode = ref<'median' | 'average' | 'items'>('median');
+const projectionMode = ref<ProjectionMode>('median');
 </script>
 
 <template>
@@ -42,6 +43,7 @@ const projectionMode = ref<'median' | 'average' | 'items'>('median');
                     :current-level="currentLevel"
                     :item-counts-by-level="itemCountsByLevel"
                     :items-per-day="itemsPerDay"
+                    :goal-days="goalDays"
                     v-model:projection-mode="projectionMode"
                 />
             </div>
