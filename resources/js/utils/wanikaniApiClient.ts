@@ -1,4 +1,5 @@
 import { LevelProgression } from '@/types/levelProgression';
+import { selectCurrentLevelProgressions } from '@/utils/levelProgressions';
 
 /**
  * Talks to api.wanikani.com directly from the browser using a user-supplied
@@ -57,7 +58,7 @@ const fetchAllPages = async <T>(startUrl: string, token: string): Promise<T[]> =
 
 export const fetchLevelProgressions = async (token: string): Promise<LevelProgression[]> => {
     const raw = await fetchAllPages<{ data: LevelProgression }>(`${BASE_URL}level_progressions`, token);
-    return raw.map((entry) => entry.data).sort((a, b) => a.level - b.level);
+    return selectCurrentLevelProgressions(raw.map((entry) => entry.data));
 };
 
 /**

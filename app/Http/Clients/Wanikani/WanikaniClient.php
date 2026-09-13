@@ -42,7 +42,7 @@ class WanikaniClient implements WanikaniClientInterface
                 $levelProgressions[] = LevelProgression::hydrate($levelProgressionObject['data']);
             }
 
-            return $levelProgressions;
+            return LevelProgression::currentRun($levelProgressions);
         } catch (Exception $e) {
             Log::error("Failed to retrieve level progression data", ['exception' => $e]);
         }

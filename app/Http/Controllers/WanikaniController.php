@@ -20,10 +20,11 @@ class WanikaniController extends Controller
 
     public function show(Request $request): Response
     {
-        $levelProgressions =  array_slice($this->client->getLevelProgression(), 12);
+        $levelProgressions = $this->client->getLevelProgression();
+
         return Inertia::render('Wanikani', [
-            'levelProgressions' => $levelProgressions, // skip first 12 values since I reset my account
-            'currentLevel' => end($levelProgressions)->level,
+            'levelProgressions' => $levelProgressions,
+            'currentLevel' => $levelProgressions ? end($levelProgressions)->level : 0,
             'itemCountsByLevel' => $this->client->getItemCountsByLevel(),
         ]);
     }

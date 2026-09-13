@@ -5,9 +5,9 @@ namespace App\Http\Clients\Wanikani;
 interface WanikaniClientInterface
 {
     /**
-     * Fetches the current level progression
+     * Fetches the level progressions of the user's current run, ordered by level.
      *
-     * @return array<Models\LevelProgression> The fetched item.
+     * @return array<Models\LevelProgression> The fetched items.
      */
     public function getLevelProgression(): array;
 

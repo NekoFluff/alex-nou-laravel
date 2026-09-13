@@ -21,6 +21,33 @@ class LevelProgression
     public ?Date $abandoned_at; // unused
 
 
+    /**
+     * WaniKani keeps every level progression a user has ever had: after an
+     * account reset the abandoned level stays in the collection alongside the
+     * levels of the new run. The progressions unlocked after the most recently
+     * abandoned level are the user's current run.
+     *
+     * @param  array<self>  $levelProgressions
+     * @return array<self>
+     */
+    public static function currentRun(array $levelProgressions): array
+    {
+        usort($levelProgressions, fn (self $a, self $b) => $a->unlocked_at <=> $b->unlocked_at);
+
+        $runStart = 0;
+        foreach ($levelProgressions as $index => $levelProgression) {
+            if ($levelProgression->abandoned_at !== null) {
+                $runStart = $index + 1;
+            }
+        }
+
+        $currentRun = array_slice($levelProgressions, $runStart);
+
+        usort($currentRun, fn (self $a, self $b) => $a->level <=> $b->level);
+
+        return $currentRun;
+    }
+
     public static function hydrate(array $data): self
     {
         $levelProgression = new self();
