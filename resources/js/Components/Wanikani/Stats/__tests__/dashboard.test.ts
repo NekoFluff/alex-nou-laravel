@@ -346,6 +346,31 @@ describe('ported WaniKani dashboard', () => {
         wrapper.unmount()
     })
 
+    it('links each leech to its WaniKani page in a new tab', async () => {
+        const { api } = await mountDashboard()
+        const LeechesPanel = (await import('@/Components/Wanikani/Stats/LeechesPanel.vue')).default
+        const stats = api.stats.value!
+        const wrapper = mount(LeechesPanel, {
+            props: { stats, settings: api.settings.value },
+            global: { stubs: { VueApexCharts: chartStub } },
+        })
+
+        const links = wrapper.findAll('a[target="_blank"]')
+        const expected = stats.leeches.items.filter((item) => item.documentUrl)
+        expect(expected.length, 'fixture should carry document URLs').toBeGreaterThan(0)
+        expect(links.length).toBe(Math.min(expected.length, 8))
+
+        for (const link of links) {
+            const href = link.attributes('href') ?? ''
+            // WaniKani's own URL shape, taken from the API rather than assembled here.
+            expect(href).toMatch(/^https:\/\/www\.wanikani\.com\/(radicals|kanji|vocabulary)\//)
+            // Opening in a new tab must not hand the opener over.
+            expect(link.attributes('rel')).toContain('noopener')
+        }
+
+        wrapper.unmount()
+    })
+
     it('puts each level date in its tile tooltip', async () => {
         const { api } = await mountDashboard()
         const LevelHeatmap = (await import('@/Components/Wanikani/Stats/LevelHeatmap.vue')).default

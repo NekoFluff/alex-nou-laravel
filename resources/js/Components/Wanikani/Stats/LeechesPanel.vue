@@ -68,7 +68,37 @@ const totalMisses = computed(() => items.value.reduce((sum, item) => sum + item.
                             class="border-b border-gray-100 last:border-0 hover:bg-gray-50"
                         >
                             <td class="px-4 py-2.5 sm:px-5">
-                                <div class="flex items-center gap-2.5">
+                                <!--
+                                    Links to WaniKani's own page for the item, which is where
+                                    you would actually go to study it again. Opens in a new
+                                    tab so a session on this dashboard is not lost.
+                                -->
+                                <a
+                                    v-if="item.documentUrl"
+                                    :href="item.documentUrl"
+                                    target="_blank"
+                                    rel="noreferrer noopener"
+                                    class="flex items-center gap-2.5 -mx-1 rounded-lg px-1 py-0.5 transition-colors hover:bg-gray-50 focus-visible:bg-gray-50"
+                                    :title="`Open ${item.primaryMeaning} on WaniKani`"
+                                >
+                                    <ItemGlyph
+                                        :characters="item.characters"
+                                        :type="item.type"
+                                        :image-url="item.imageUrl"
+                                        size="sm"
+                                    />
+                                    <div class="min-w-0">
+                                        <p
+                                            class="font-medium truncate text-gray-900 underline decoration-gray-300 underline-offset-2 hover:decoration-gray-500"
+                                        >
+                                            {{ item.primaryMeaning }}
+                                        </p>
+                                        <p class="text-[10px] text-gray-400">
+                                            {{ SUBJECT_TYPE_LABELS[item.type] }}
+                                        </p>
+                                    </div>
+                                </a>
+                                <div v-else class="flex items-center gap-2.5">
                                     <ItemGlyph
                                         :characters="item.characters"
                                         :type="item.type"

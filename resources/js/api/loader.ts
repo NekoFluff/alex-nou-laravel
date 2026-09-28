@@ -86,6 +86,8 @@ export function slimSubjects(subjects: Subject[]): Subject[] {
     characters: subject.characters,
     hidden_at: subject.hidden_at,
     meanings: subject.meanings,
+    // Needed for the leech table's links, so it has to survive caching.
+    document_url: subject.document_url,
     character_images: 'character_images' in subject ? subject.character_images : [],
     // Radicals and kana vocabulary have no `readings` key at all.
     ...('readings' in subject ? { readings: subject.readings } : {}),

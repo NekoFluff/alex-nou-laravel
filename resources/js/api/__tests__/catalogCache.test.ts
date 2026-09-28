@@ -176,6 +176,8 @@ describe('catalogue payload size', () => {
             'meanings',
             'character_images',
             'readings',
+            // Carried so the leech table can link to the item's WaniKani page.
+            'document_url',
         ])
 
         for (const subject of slim) {

@@ -164,6 +164,7 @@ function flattenSubject(subject: Subject): SubjectInfo {
     primaryMeaning,
     primaryReading,
     imageUrl: svg?.url ?? null,
+    documentUrl: subject.document_url ?? null,
   }
 }
 
@@ -763,6 +764,7 @@ export function computeStats(
       type: subject.type,
       level: subject.level,
       imageUrl: subject.imageUrl,
+      documentUrl: subject.documentUrl,
       srsStage: assignment.srs_stage,
       srsStageName: SRS_STAGE_NAMES[assignment.srs_stage] ?? `Stage ${assignment.srs_stage}`,
       incorrect,

@@ -221,6 +221,8 @@ export interface Leeches {
     type: SubjectType
     level: number
     imageUrl: string | null
+    /** WaniKani's own page for the item, so a row can be opened for study. */
+    documentUrl: string | null
     srsStage: number
     srsStageName: string
     incorrect: number

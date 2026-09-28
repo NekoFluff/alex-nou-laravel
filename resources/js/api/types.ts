@@ -216,6 +216,14 @@ export interface SubjectInfo {
   primaryReading: string | null
   /** Radical images are SVGs hosted by WaniKani and need no auth. */
   imageUrl: string | null
+  /**
+   * WaniKani's own page for this item.
+   *
+   * Taken from the API's `document_url` rather than assembled from the slug: the URL shape
+   * differs per subject type (`/radicals/`, `/kanji/`, `/vocabulary/`) and kana vocabulary
+   * lives under `/vocabulary/` in any case, so building it by hand invites a wrong link.
+   */
+  documentUrl: string | null
 }
 
 /**
@@ -233,7 +241,7 @@ export interface SubjectInfo {
  */
 export type SlimSubject = Pick<
     Subject,
-    'id' | 'object' | 'level' | 'slug' | 'characters' | 'hidden_at' | 'meanings'
+    'id' | 'object' | 'level' | 'slug' | 'characters' | 'hidden_at' | 'meanings' | 'document_url'
 > & {
     /** Radicals only; every other type has none. */
     character_images?: CharacterImage[]
