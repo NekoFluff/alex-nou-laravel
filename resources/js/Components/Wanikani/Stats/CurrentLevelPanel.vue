@@ -48,27 +48,7 @@ const pace = computed(() => {
         elapsed,
         /** What is left of a typical level, from where you actually are. */
         remaining: Math.max(0, typical - elapsed),
-        /** How far through a typical level you are, which is what "on pace" means. */
-        expected: Math.min(1, elapsed / typical),
     }
-})
-
-/**
- * Progress measured in kanji, not in days elapsed.
- *
- * This used to compare `daysOnLevel` against the typical duration and call the difference
- * "ahead of your usual pace" — but simply having spent less time is not progress, so an
- * account 5.5 days into a 12.1-day level was told it was 6.6 days ahead while the same
- * line claimed 21 more days were needed. Comparing kanji passed against the fraction of a
- * typical level elapsed is the only version of this claim that means anything.
- */
-const kanjiPace = computed(() => {
-    if (pace.value === null || level.value.kanjiTotal === 0) {
-        return null
-    }
-    const expected = level.value.kanjiTotal * pace.value.expected
-    const actual = level.value.kanjiPassed
-    return { expected, delta: actual - expected, isEarly: pace.value.expected < 0.15 }
 })
 
 const estimate = computed(() => {
@@ -140,15 +120,6 @@ const estimate = computed(() => {
 
         <p class="mt-3 text-[11px] leading-relaxed text-gray-400">
             {{ estimate }}
-            <template v-if="kanjiPace && !kanjiPace.isEarly && !level.isComplete">
-                <br />
-                By this point in a typical level you would have passed about
-                {{ Math.round(kanjiPace.expected) }} kanji — you are
-                <strong :class="kanjiPace.delta >= 0 ? 'text-green-600' : 'text-amber-600'">
-                    {{ Math.abs(Math.round(kanjiPace.delta)) }}
-                    {{ kanjiPace.delta >= 0 ? 'ahead' : 'behind' }}
-                </strong>.
-            </template>
         </p>
     </StatPanel>
 </template>

@@ -12,6 +12,10 @@
  *    regardless of how fast the account actually levels.
  *  - "Ahead of your usual pace" compared *days elapsed* against the typical duration.
  *    Having spent less time is not progress, so a slow level looked like a fast one.
+ *
+ * The estimate was fixed to use the measured pace. The ahead/behind verdict was
+ * subsequently removed altogether, so the tests that pinned its wording are replaced by
+ * guards that it stays gone.
  */
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
@@ -51,8 +55,7 @@ function statsWith(options: {
     } as unknown as WaniKaniStats
 }
 
-const render = (stats: WaniKaniStats) =>
-    mount(CurrentLevelPanel, { props: { stats } }).text()
+const render = (stats: WaniKaniStats) => mount(CurrentLevelPanel, { props: { stats } }).text()
 
 describe('CurrentLevelPanel pace text', () => {
     it('derives the remaining estimate from the measured pace', () => {
@@ -68,30 +71,21 @@ describe('CurrentLevelPanel pace text', () => {
 
         // The contradictory pair must not both appear.
         expect(text).not.toContain('days ahead of your usual pace')
-        expect(text).not.toMatch(/\\d+(\\.\\d+)? days ahead/)
+        expect(text).not.toMatch(/\d+(\.\d+)? days ahead/)
     })
 
-    it('judges pace by kanji progress rather than by time elapsed', () => {
-        // Half a level in, 10 of 35 kanji done is behind, and must say so.
-        const behind = render(statsWith({ daysOnLevel: 6, daysPerLevel: 12, kanjiPassed: 10 }))
-        expect(behind).toContain('behind')
+    it('makes no claim about being ahead or behind', () => {
+        // This verdict was removed at the owner's request. It is asserted in both
+        // directions so it cannot creep back in whichever way the data leans.
+        const slow = render(statsWith({ daysOnLevel: 6, daysPerLevel: 12, kanjiPassed: 10 }))
+        expect(slow).not.toContain('behind')
+        expect(slow).not.toContain('ahead')
+        expect(slow).not.toContain('you would have passed')
 
-        // The same elapsed time with the kanji actually done is the opposite verdict.
-        const onTrack = render(statsWith({ daysOnLevel: 6, daysPerLevel: 12, kanjiPassed: 20 }))
-        expect(onTrack).toContain('ahead')
-    })
-
-    it('says how many kanji were expected, so the verdict can be checked', () => {
-        // Half of a 12-day level is 6 days; half of 35 kanji is ~18.
-        const text = render(statsWith({ daysOnLevel: 6, daysPerLevel: 12, kanjiPassed: 10 }))
-        expect(text).toContain('you would have passed about 18 kanji')
-    })
-
-    it('stays quiet about pace in the first days of a level', () => {
-        // Comparing against a fraction of a level this small would be noise.
-        const text = render(statsWith({ daysOnLevel: 0.5, daysPerLevel: 12, kanjiPassed: 1 }))
-        expect(text).not.toContain('behind')
-        expect(text).not.toContain('ahead')
+        const fast = render(statsWith({ daysOnLevel: 6, daysPerLevel: 12, kanjiPassed: 20 }))
+        expect(fast).not.toContain('behind')
+        expect(fast).not.toContain('ahead')
+        expect(fast).not.toContain('you would have passed')
     })
 
     it('does not invent a countdown once a level runs long', () => {
