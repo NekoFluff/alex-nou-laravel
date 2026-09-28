@@ -2,30 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Clients\Wanikani\WanikaniClient;
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class WanikaniController extends Controller
 {
-    public function __construct(private WanikaniClient $client)
+    /**
+     * The dashboard is entirely client-side: the visitor supplies their own WaniKani API
+     * token, which stays in their browser and is used for direct calls to
+     * api.wanikani.com.
+     *
+     * It used to receive level progressions for a shared server-side account, which meant
+     * one person's progress was rendered for every visitor. That data is gone, so the page
+     * now takes no props and the server holds no WaniKani token on its behalf.
+     */
+    public function show(): Response
     {
-    }
-
-    public function show(Request $request): Response
-    {
-        $levelProgressions = $this->client->getLevelProgression();
-
-        return Inertia::render('Wanikani', [
-            'levelProgressions' => $levelProgressions,
-            'currentLevel' => $levelProgressions ? end($levelProgressions)->level : 0,
-            'itemCountsByLevel' => $this->client->getItemCountsByLevel(),
-        ]);
+        return Inertia::render('Wanikani');
     }
 }

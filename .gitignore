@@ -17,3 +17,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Real WaniKani account dump, used only to check the stats engine against live data.
+resources/js/test/fixtures/wanikani-dataset.json

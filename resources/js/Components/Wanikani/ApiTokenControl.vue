@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     hasToken: boolean;
     loading: boolean;
     error: string | null;
+    /** True when the token has no stored owner, so the baked-in account is showing. */
+    isOwnerView: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -15,6 +17,39 @@ const emit = defineEmits<{
 const showForm = ref(false);
 const draftToken = ref('');
 const revealToken = ref(false);
+
+/**
+ * Which of the three mutually exclusive states to show.
+ *
+ * This used to be a hand-written `v-if` / `v-else-if` / `v-else` chain over `showForm`,
+ * `hasToken` and `isOwnerView`. Submitting the form changes two of those in the same tick
+ * (the form closes *and* `isOwnerView` flips), and Vue's patch lost track of the nodes —
+ * "Cannot read properties of null (reading 'nextSibling')" — which aborted the render and
+ * left the dashboard showing the previous account. Reducing it to one value makes the
+ * branches unambiguous, and the keyed containers below let Vue swap them wholesale.
+ */
+/**
+ * Titles are single interpolations rather than `<template v-if>` chains. Adjacent text
+ * nodes inside a conditional branch are what Vue 3.4 failed to patch when the branch was
+ * removed, which aborted the render.
+ */
+const inviteTitle = computed(() => {
+    if (props.isOwnerView && props.loading) return "Syncing the site owner's progress…";
+    if (props.isOwnerView) return "Showing the site owner's progress";
+    return 'Want to see your own progress?';
+});
+
+const statusTitle = computed(() => {
+    if (props.loading) return 'Syncing your progress…';
+    if (props.error) return "Couldn't load your progress";
+    return 'Viewing your own progress';
+});
+
+const mode = computed<'invite' | 'form' | 'status'>(() => {
+    if (showForm.value) return 'form';
+    if (!props.hasToken || props.isOwnerView) return 'invite';
+    return 'status';
+});
 
 const openForm = () => {
     showForm.value = true;
@@ -36,12 +71,21 @@ const submit = () => {
 
 <template>
     <div class="p-4 bg-white border border-gray-200 shadow-sm rounded-xl sm:p-5">
-        <!-- Viewing someone else's data, no personal token set -->
-        <div v-if="!hasToken && !showForm" class="flex flex-wrap items-center justify-between gap-3">
+        <!--
+            No token of their own: either nothing is configured, or the baked-in account is
+            showing. Both want the same invitation, which is why this is not gated on
+            `hasToken` — with a baked-in token that is always true.
+        -->
+        <div
+            :class="mode === 'invite' ? 'flex' : 'hidden'"
+            :inert="mode !== 'invite'"
+            data-state="invite"
+            class="flex-wrap items-center justify-between gap-3"
+        >
             <div>
-                <p class="text-sm font-medium text-gray-700">Want to see your own progress?</p>
+                <p class="text-sm font-medium text-gray-700">{{ inviteTitle }}</p>
                 <p class="mt-0.5 text-xs text-gray-400">
-                    Connect your WaniKani API token to view your own stats here.
+                    Connect your WaniKani API token to see stats for your own account instead.
                 </p>
             </div>
             <button
@@ -54,7 +98,13 @@ const submit = () => {
         </div>
 
         <!-- Token entry form -->
-        <form v-else-if="showForm" class="space-y-2" @submit.prevent="submit">
+        <form
+            :class="mode === 'form' ? 'block' : 'hidden'"
+            :inert="mode !== 'form'"
+            data-state="form"
+            class="space-y-2"
+            @submit.prevent="submit"
+        >
             <label for="wanikani-token" class="block text-sm font-medium text-gray-700">
                 WaniKani API token
             </label>
@@ -104,8 +154,13 @@ const submit = () => {
             </div>
         </form>
 
-        <!-- Token set: show status -->
-        <div v-else class="flex flex-wrap items-center justify-between gap-3">
+        <!-- The visitor's own token is in use: report its state. -->
+        <div
+            :class="mode === 'status' ? 'flex' : 'hidden'"
+            :inert="mode !== 'status'"
+            data-state="status"
+            class="flex-wrap items-center justify-between gap-3"
+        >
             <div class="flex items-center gap-2">
                 <span
                     v-if="loading"
@@ -116,11 +171,10 @@ const submit = () => {
                     class="inline-block w-2 h-2 rounded-full"
                     :class="error ? 'bg-amber-500' : 'bg-green-500'"
                 />
-                <p class="text-sm font-medium text-gray-700">
-                    {{ loading ? 'Syncing your progress…' : error ? "Couldn't load your progress" : 'Viewing your own progress' }}
-                </p>
+                <p class="text-sm font-medium text-gray-700">{{ statusTitle }}</p>
             </div>
             <button
+                v-if="!isOwnerView"
                 type="button"
                 class="px-3 py-1.5 text-sm font-medium text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50"
                 @click="emit('clear')"
