@@ -18,7 +18,7 @@ withDefaults(
 </script>
 
 <template>
-    <section class="bg-white border border-gray-200 shadow-sm rounded-xl">
+    <section class="min-w-0 bg-white border border-gray-200 shadow-sm rounded-xl">
         <header
             v-if="title || $slots.actions"
             class="flex flex-wrap items-start justify-between gap-3 px-4 py-3 border-b border-gray-100 sm:px-5 sm:py-4"

@@ -198,7 +198,7 @@ onMounted(() => {
 
                     <!-- The answer, stated plainly. -->
                     <section class="p-6 overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
-                        <div class="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+                        <div class="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center">
                             <div>
                                 <p class="text-[11px] font-semibold tracking-wider text-gray-400 uppercase">
                                     The short version
@@ -280,16 +280,16 @@ onMounted(() => {
 
                     <BurnForecastPanel :stats="stats" />
 
-                    <div class="grid gap-4 lg:grid-cols-[1.45fr_1fr]">
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
                         <TimeInvestmentPanel :stats="stats" :settings="settings" />
-                        <div class="grid gap-4">
+                        <div class="grid min-w-0 grid-cols-1 gap-4">
                             <CurrentLevelPanel :stats="stats" />
                             <SrsBreakdown :stats="stats" />
                             <ReviewForecastPanel :stats="stats" />
                         </div>
                     </div>
 
-                    <div class="grid gap-4 lg:grid-cols-2">
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <LevelHeatmap :stats="stats" />
                         <AccuracyPanel :stats="stats" />
                     </div>
