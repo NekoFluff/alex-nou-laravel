@@ -16,16 +16,6 @@ RUN apt update && apt install -y \
     mecab \
     mecab-ipadic-utf8
 
-# Debian's own "default-mysql-client" resolves to the MariaDB client, whose
-# ssl-verify-server-cert defaults to on — that fails against the
-# docker-compose MySQL service's self-signed cert. Installing the real
-# Oracle client instead (default ssl-mode is PREFERRED: encrypted but not
-# verified) avoids needing any TLS-verification workaround. Component name
-# (mysql-8.4-lts) should track the server version in docker-compose.yml.
-RUN curl -fsSL https://repo.mysql.com/RPM-GPG-KEY-mysql-2025 | gpg --dearmor -o /etc/apt/trusted.gpg.d/mysql.gpg \
-    && echo "deb https://repo.mysql.com/apt/debian/ trixie mysql-8.4-lts" > /etc/apt/sources.list.d/mysql.list \
-    && apt update && apt install -y mysql-community-client
-
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype --with-webp
