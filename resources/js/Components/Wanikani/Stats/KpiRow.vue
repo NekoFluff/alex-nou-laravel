@@ -11,10 +11,6 @@ import type { StudySettings, WaniKaniStats } from '@/domain/stats-types'
 
 const props = defineProps<{ stats: WaniKaniStats; settings: StudySettings }>()
 
-const paceLabel = computed(
-    () => `${props.settings.secondsPerReview}s per review · ${props.settings.minutesPerLesson} min per lesson`,
-)
-
 const investedDetail = computed(
     () =>
         `${formatNumber(props.stats.invested.lessonsCompleted)} lessons + ${formatNumber(
@@ -33,12 +29,9 @@ const investedHint = computed(
         )} reviews`,
 )
 
-const investedTooltip = computed(() =>
-    [
-        'A review quizzes meaning and reading together, so each one counts once here even though it produces two answers.',
-        `The time figure is built from all ${formatNumber(props.stats.invested.answersRecorded)} answers at ${props.settings.secondsPerReview}s each, plus ${formatNumber(props.stats.invested.lessonsCompleted)} lessons at ${props.settings.minutesPerLesson} min each.`,
-        paceLabel.value,
-    ].join(' '),
+const investedTooltip = computed(
+    () =>
+        `Each lesson counts as ${props.settings.minutesPerLesson} min and each answer you've typed as ${props.settings.secondsPerReview}s. You can change both under Assumptions.`,
 )
 
 /** Same shape and order as the invested hint, so the two cards read against each other. */
@@ -85,7 +78,7 @@ const journeyProgress = computed(() => props.stats.curriculumProgress)
             :detail="remainingDetail"
             :hint="remainingHint"
             :accent="'#294ddb'"
-            tooltip="Every review still owed on an unlocked item, plus a full seven-step climb for every subject you have not unlocked yet. Counted in answers, the same unit as time invested: a kanji or vocabulary review quizzes meaning and reading separately, so each of those stage-ups costs two answers, while a radical costs one."
+            tooltip="The lessons you have left, plus the reviews needed to burn every item, including ones you haven't unlocked yet. Assumes you don't miss anything from here on."
         />
 
         <KpiCard
@@ -95,7 +88,7 @@ const journeyProgress = computed(() => props.stats.curriculumProgress)
             :detail="`${journeyProgress.toFixed(1)}% unlocked`"
             hint="Level 1 through 60, lessons and reviews"
             :accent="'#0093dd'"
-            tooltip="Time invested plus time remaining — the total cost of the entire WaniKani curriculum at your assumptions. The percentage is how much of the catalogue you have unlocked, not how much of this time you have spent, because the two move at different rates: unlocking the last item is the midpoint of the work, not the end of it."
+            tooltip="Time invested plus time remaining: the whole course, level 1 to 60. The percentage is how many items you've unlocked, not how much of the time you've spent."
         />
 
         <KpiCard
@@ -109,7 +102,7 @@ const journeyProgress = computed(() => props.stats.curriculumProgress)
                     : 'Not enough level history yet'
             "
             :accent="UI_PALETTE.indigo"
-            tooltip="Your median days-per-level, multiplied by the levels you have left. This respects WaniKani's real SRS wait times, which is why it is usually later — and more honest — than dividing remaining hours by hours studied per day."
+            tooltip="How long your recent levels usually took, times the number of levels you have left."
         />
     </div>
 </template>

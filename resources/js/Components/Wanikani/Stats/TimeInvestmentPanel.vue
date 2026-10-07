@@ -52,10 +52,10 @@ const overheadRatio = computed(() =>
 </script>
 
 <template>
-    <StatPanel title="Time invested" subtitle="Every completed lesson and recorded review answer">
+    <StatPanel title="Time invested" subtitle="Every lesson and review answer so far">
         <template #actions>
             <InfoTip
-                text="Lesson time is the count of items whose lesson you have completed. Review time is every correct and incorrect meaning/reading answer WaniKani still reports, at your seconds-per-review setting."
+                text="Lessons done × minutes per lesson, plus every answer you've typed (right or wrong) × seconds per answer."
             />
         </template>
 
@@ -141,11 +141,10 @@ const overheadRatio = computed(() =>
         >
             Your burned items took
             <strong class="text-gray-600">{{ averageAnswersPerBurned.toFixed(1) }} answers</strong>
-            each on average, counting only those items. A flawless climb takes exactly
-            {{ FLAWLESS_ANSWERS_PER_ITEM }} (meaning and reading at each of the 7 stage-ups), so you
-            paid
+            each on average. A kanji or vocab item with no mistakes takes
+            {{ FLAWLESS_ANSWERS_PER_ITEM }}, so that's
             <strong class="text-gray-600">{{ overheadRatio.toFixed(2) }}×</strong>
-            the minimum — everything above 1.00× is corrections and repeated reviews.
+            the minimum. The extra comes from mistakes.
         </p>
     </StatPanel>
 </template>

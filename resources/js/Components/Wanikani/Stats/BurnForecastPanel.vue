@@ -70,10 +70,10 @@ const remainingToBurn = computed(() => props.stats.counts.unlocked - props.stats
 </script>
 
 <template>
-    <StatPanel title="Burn forecast" subtitle="When known items finish their ladder">
+    <StatPanel title="Burn forecast" subtitle="When your items will be burned">
         <template #actions>
             <InfoTip
-                text="Each item's burn date is its next review plus WaniKani's standard wait for every remaining stage. It assumes you never miss again, so treat it as the earliest possible date."
+                text="When each item would burn if you never miss it again, so this is the earliest it could happen."
             />
             <div class="flex overflow-hidden border border-gray-200 rounded-lg">
                 <button
@@ -117,9 +117,9 @@ const remainingToBurn = computed(() => props.stats.counts.unlocked - props.stats
 
         <template #footer>
             <span>
-                {{ formatNumber(remainingToBurn) }} unlocked items still have burning ahead.
+                {{ formatNumber(remainingToBurn) }} unlocked items still to burn.
                 <template v-if="finalDate">
-                    Last known burn lands around
+                    The last one burns around
                     <strong class="text-gray-600">{{ formatDate(finalDate) }}</strong
                     >.
                 </template>

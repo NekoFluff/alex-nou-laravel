@@ -30,10 +30,10 @@ const breakdowns = computed(() =>
 </script>
 
 <template>
-    <StatPanel title="Accuracy" subtitle="Every recorded answer, all time">
+    <StatPanel title="Accuracy" subtitle="Every answer you've given">
         <template #actions>
             <InfoTip
-                text="WaniKani reports correct and incorrect counts per item rather than a review log, so these are exact counts of answers. A kanji or vocabulary review counts as two answers; a radical review counts as one."
+                text="The share of your answers that were right. Kanji and vocabulary reviews count as two answers: meaning and reading."
             />
         </template>
 
@@ -82,11 +82,9 @@ const breakdowns = computed(() =>
         </p>
 
         <p class="px-3.5 py-3 mt-3 text-[11px] leading-relaxed text-gray-400 bg-gray-50 rounded-xl">
-            <strong class="text-gray-600">Read this as answer accuracy, not review accuracy.</strong>
-            A kanji or vocabulary review quizzes meaning and reading together, so one wrong review
-            produces two wrong answers. That double-counts your mistakes, which means this percentage
-            flatters you. Judged per review — did the item advance or not — the figure is a few points
-            lower, and a better match for how the work actually feels.
+            <strong class="text-gray-600">This is per answer, not per review.</strong>
+            A kanji or vocab review fails if either answer is wrong, so the share of reviews you
+            pass is a few points lower than this.
         </p>
     </StatPanel>
 </template>

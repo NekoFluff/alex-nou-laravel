@@ -60,7 +60,7 @@ const estimate = computed(() => {
     }
     if (pace.value.remaining <= 0) {
         // Past the typical duration: promising a number of days would be inventing one.
-        return `Levels usually take you ${pace.value.typical.toFixed(1)} days, and this one is at day ${pace.value.elapsed.toFixed(1)} — the remaining kanji need guru’ing`
+        return `Levels usually take you ${pace.value.typical.toFixed(1)} days and this one is at day ${pace.value.elapsed.toFixed(1)}. Pass the remaining kanji to level up.`
     }
     return `About ${pace.value.remaining.toFixed(1)} more days at your ${pace.value.typical.toFixed(1)}-day pace`
 })

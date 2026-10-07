@@ -1,7 +1,8 @@
 <script setup lang="ts">
 /**
- * The next 48 hours of reviews, straight from WaniKani's own forecast endpoint. This is
- * the one genuinely forward-looking dataset the API provides.
+ * The next 24 hours of reviews, straight from WaniKani's own forecast endpoint. The
+ * summary returns 25 hourly buckets — the current hour plus 24 — so it cannot show more.
+ * The first bucket is what is waiting now, so the total includes those reviews.
  */
 import { computed } from 'vue'
 import StatPanel from './StatPanel.vue'
@@ -31,10 +32,10 @@ const peak = computed(() => {
 </script>
 
 <template>
-    <StatPanel title="Next 48 hours" subtitle="Reviews WaniKani has scheduled, by the hour">
+    <StatPanel title="Next 24 hours" subtitle="Reviews coming up, by the hour">
         <template #actions>
             <span class="text-xs tabular-nums text-gray-500">
-                {{ formatNumber(totalUpcoming) }} scheduled
+                {{ formatNumber(totalUpcoming) }} in total
             </span>
         </template>
 
@@ -69,7 +70,7 @@ const peak = computed(() => {
             />
         </div>
         <p v-else class="mt-5 text-sm text-gray-500">
-            Nothing scheduled in the next 48 hours. Use the lessons above to add more.
+            Nothing due in the next 24 hours. Do some lessons to add more.
         </p>
 
         <template #footer>

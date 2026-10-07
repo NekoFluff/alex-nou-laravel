@@ -98,10 +98,10 @@ const resets = computed(() => props.stats.levels.resets)
 </script>
 
 <template>
-    <StatPanel title="Level history" subtitle="Every level, shaded by how finished it is">
+    <StatPanel title="Level history" subtitle="All 60 levels, shaded by progress">
         <template #actions>
             <InfoTip
-                text="Burn shading is the share of a level's items that reached stage 9. Guru shading is how many have passed. A level is only fully burned long after you have moved on, which is why the current level looks so pale."
+                text="Purple means items passed, blue means items burned. Levels fill in slowly because burning takes months. Hover a square for details."
             />
         </template>
 
@@ -163,8 +163,8 @@ const resets = computed(() => props.stats.levels.resets)
                 </li>
             </ul>
             <p class="mt-1.5 text-amber-700">
-                A reset hands out fresh level progressions, so earlier levels can appear to have been
-                climbed twice. Those impossible gaps are excluded from the pace estimate.
+                After a reset you redo earlier levels, so those repeat level-ups are left out of
+                your pace.
             </p>
         </div>
 

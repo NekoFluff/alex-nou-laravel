@@ -38,7 +38,7 @@ const totalMisses = computed(() => items.value.reduce((sum, item) => sum + item.
     <StatPanel title="Leeches" subtitle="Unlocked items you keep missing" flush>
         <template #actions>
             <InfoTip
-                text="An item counts as a leech when it is short of burned and has at least four recorded wrong answers. Keep missing an item at Guru or above and WaniKani drops it four stages, which is why these consume so much review time."
+                text="Items you've missed 4 or more times that aren't burned yet. Each miss sends an item back down, so these eat up review time."
             />
             <span
                 v-if="items.length > 0"

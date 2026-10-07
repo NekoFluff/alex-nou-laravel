@@ -219,7 +219,7 @@ onMounted(() => {
                                     {{ stats.curriculumProgress.toFixed(1) }}% of everything there is to
                                     learn.
                                     <template v-if="stats.projection.levelsRemaining > 0">
-                                        At your median pace of
+                                        At your usual pace of
                                         {{ stats.projection.daysPerLevel.toFixed(1) }} days per level
                                         you reach level 60 around
                                         <strong class="text-gray-800">{{

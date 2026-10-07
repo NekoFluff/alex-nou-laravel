@@ -36,9 +36,8 @@ const isCustomised = computed(() => props.stats.assumptions.source === 'custom')
                     </span>
                 </h2>
                 <p class="max-w-2xl mt-1 text-xs text-gray-500">
-                    WaniKani does not record how long you spend studying, so every time figure on this
-                    page is derived from these two numbers. The defaults are the community's usual rule
-                    of thumb — adjust them to match your real pace.
+                    WaniKani doesn't track study time, so every time on this page is an estimate built
+                    from these two numbers. Adjust them to match your pace.
                 </p>
             </div>
             <button
@@ -67,8 +66,7 @@ const isCustomised = computed(() => props.stats.assumptions.source === 'custom')
                     class="w-full mt-3 accent-indigo-600"
                 />
                 <span class="block mt-1 text-[11px] text-gray-400">
-                    One answer, meaning or reading. WaniKani counts a review of a kanji or vocabulary
-                    item as two answers.
+                    One answer, meaning or reading. Kanji and vocab reviews need two.
                 </span>
             </label>
 
@@ -88,7 +86,7 @@ const isCustomised = computed(() => props.stats.assumptions.source === 'custom')
                     class="w-full mt-3 accent-indigo-600"
                 />
                 <span class="block mt-1 text-[11px] text-gray-400">
-                    Reading mnemonics and answering the initial quiz for one item.
+                    Learning one new item, including its quiz.
                 </span>
             </label>
         </div>

@@ -299,7 +299,7 @@ describe('ported WaniKani dashboard', () => {
             [0, 'Time invested'],
             [1, 'Current level'],
             [2, 'SRS stages'],
-            [3, 'Next 48 hours'],
+            [3, 'Next 24 hours'],
             [4, 'Burn forecast'],
             [5, 'Level history'],
             [6, 'Accuracy'],
