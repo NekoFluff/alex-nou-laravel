@@ -99,9 +99,7 @@ export type LoadPhase =
   | 'validating'
   | 'cache'
   | 'catalog'
-  | 'assignments'
-  | 'reviews'
-  | 'levels'
+  | 'progress'
   | 'summary'
   | 'computing'
   | 'done'
@@ -118,9 +116,7 @@ export const PHASE_LABELS: Record<LoadPhase, string> = {
   validating: 'Checking your token',
   cache: 'Reading local cache',
   catalog: 'Downloading the subject catalog',
-  assignments: 'Downloading assignments',
-  reviews: 'Downloading review statistics',
-  levels: 'Downloading level history',
+  progress: 'Downloading your assignments, reviews and level history',
   summary: 'Downloading the review forecast',
   computing: 'Crunching numbers',
   done: 'Ready',
@@ -229,22 +225,39 @@ export async function loadDataset(
   if (!progress) {
     const cached = cachedProgress?.value ?? null
 
+    // These three download in parallel, so their counts are pooled into one bar.
+    // Reporting each separately made the label and bar flicker between them.
+    const counts = {
+      assignments: { loaded: 0, total: 0 },
+      reviews: { loaded: 0, total: 0 },
+      levels: { loaded: 0, total: 0 },
+    }
+    const track = (key: keyof typeof counts) => (loaded: number, total: number) => {
+      counts[key] = { loaded, total }
+      const all = Object.values(counts)
+      report({
+        phase: 'progress',
+        loaded: all.reduce((sum, c) => sum + c.loaded, 0),
+        total: all.reduce((sum, c) => sum + c.total, 0),
+        label: PHASE_LABELS.progress,
+      })
+    }
+
     const [assignments, reviewStatistics, levelProgressions, resets] = await Promise.all([
       fetchAssignments(token, {
         ...requestOptions,
         etag: cached?.etags?.assignments ?? null,
-        onProgress: (loaded, total) =>
-          report({ phase: 'assignments', loaded, total, label: PHASE_LABELS.assignments }),
+        onProgress: track('assignments'),
       }),
       fetchReviewStatistics(token, {
         ...requestOptions,
         etag: cached?.etags?.reviewStatistics ?? null,
-        onProgress: (loaded, total) => report({ phase: 'reviews', loaded, total, label: PHASE_LABELS.reviews }),
+        onProgress: track('reviews'),
       }),
       fetchLevelProgressions(token, {
         ...requestOptions,
         etag: cached?.etags?.levelProgressions ?? null,
-        onProgress: (loaded, total) => report({ phase: 'levels', loaded, total, label: PHASE_LABELS.levels }),
+        onProgress: track('levels'),
       }),
       // A reset is rare and explains otherwise-baffling level history, so a failure
       // here should not sink the whole load.
