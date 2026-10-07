@@ -7,7 +7,7 @@
 import { computed } from 'vue'
 import StatPanel from './StatPanel.vue'
 import BarChart from './BarChart.vue'
-import { formatNumber, formatRelative, formatTime } from '@/domain/format'
+import { formatNumber, formatTime } from '@/domain/format'
 import type { WaniKaniStats } from '@/domain/stats-types'
 
 const props = defineProps<{ stats: WaniKaniStats }>()
@@ -39,7 +39,7 @@ const peak = computed(() => {
             </span>
         </template>
 
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 gap-3">
             <div class="px-3 py-2.5 bg-gray-50 rounded-xl">
                 <p class="text-[10px] uppercase tracking-wide text-gray-400">Waiting now</p>
                 <p class="mt-1 text-xl font-semibold tabular-nums text-gray-900">
@@ -50,12 +50,6 @@ const peak = computed(() => {
                 <p class="text-[10px] uppercase tracking-wide text-gray-400">Lessons ready</p>
                 <p class="mt-1 text-xl font-semibold tabular-nums text-gray-900">
                     {{ formatNumber(stats.lessonsAvailable) }}
-                </p>
-            </div>
-            <div class="px-3 py-2.5 bg-gray-50 rounded-xl">
-                <p class="text-[10px] uppercase tracking-wide text-gray-400">Next batch</p>
-                <p class="mt-1 text-xl font-semibold tabular-nums text-gray-900">
-                    {{ stats.nextReviewAt ? formatRelative(stats.nextReviewAt) : '—' }}
                 </p>
             </div>
         </div>
