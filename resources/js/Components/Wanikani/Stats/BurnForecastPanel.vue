@@ -28,6 +28,7 @@ const horizons = [
 
 const horizon = ref<number>(90)
 const now = new Date()
+const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
 
 const series = computed(() => {
     const cutoff = new Date(now.getTime() + horizon.value * 86_400_000)
@@ -45,10 +46,21 @@ const series = computed(() => {
     return within
 })
 
-const labels = computed(() =>
-    series.value.map((point) => point.day.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })),
-)
-const values = computed(() => series.value.map((point) => point.cumulative))
+/*
+ * Anchored at today (0) and at the end of the window (the final total), so the x-axis
+ * always spans exactly the window chosen rather than stopping at the last burn.
+ */
+const plotted = computed(() => {
+    const end = now.getTime() + horizon.value * 86_400_000
+    const last = series.value.length === 0 ? 0 : series.value[series.value.length - 1].cumulative
+    return [
+        { time: startOfToday.getTime(), cumulative: 0 },
+        ...series.value.map((point) => ({ time: point.day.getTime(), cumulative: point.cumulative })),
+        { time: end, cumulative: last },
+    ]
+})
+const timestamps = computed(() => plotted.value.map((point) => point.time))
+const values = computed(() => plotted.value.map((point) => point.cumulative))
 
 const horizonTotal = computed(() =>
     series.value.length === 0 ? 0 : series.value[series.value.length - 1].cumulative,
@@ -108,8 +120,8 @@ const remainingToBurn = computed(() => props.stats.counts.unlocked - props.stats
             </div>
         </div>
 
-        <div v-if="series.length > 1" class="mt-5">
-            <AreaChart :labels="labels" :values="values" color="#489cc1" :height="200" value-suffix="burned" />
+        <div v-if="series.length > 0" class="mt-5">
+            <AreaChart :timestamps="timestamps" :values="values" color="#489cc1" :height="200" value-suffix="burned" />
         </div>
         <p v-else class="mt-5 text-sm text-gray-500">
             No items are scheduled to burn inside this window.
