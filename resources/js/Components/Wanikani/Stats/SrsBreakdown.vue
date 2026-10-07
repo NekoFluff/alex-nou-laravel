@@ -35,24 +35,33 @@ const total = computed(() => props.stats.counts.unlocked)
             <span class="text-xs tabular-nums text-gray-500">{{ formatNumber(total) }} items</span>
         </template>
 
-        <div class="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,180px)_1fr] lg:items-center">
-            <DonutChart
-                :labels="labels"
-                :values="values"
-                :colors="colors"
-                :height="180"
-                :center-value="formatNumber(total)"
-                center-label="unlocked"
-            />
+        <!--
+            Explicit minmax(0, …) tracks: an implicit 'auto' track grows to fit the chart's
+            rendered width and never shrinks, which pushed the legend off the card and the
+            donut off-centre on phones.
+        -->
+        <div
+            class="grid grid-cols-1 gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)] lg:items-center"
+        >
+            <div class="w-full max-w-[220px] mx-auto">
+                <DonutChart
+                    :labels="labels"
+                    :values="values"
+                    :colors="colors"
+                    :height="180"
+                    :center-value="formatNumber(total)"
+                    center-label="unlocked"
+                />
+            </div>
 
-            <ul class="space-y-2">
-                <li v-for="ring in rings" :key="ring.key" class="flex items-center gap-3 text-xs">
+            <ul class="min-w-0 space-y-2">
+                <li v-for="ring in rings" :key="ring.key" class="flex items-center gap-2 text-xs sm:gap-3">
                     <span class="rounded-full size-2.5 shrink-0" :style="{ backgroundColor: ring.color }" />
-                    <span class="w-24 shrink-0 text-gray-500">{{ ring.label }}</span>
-                    <span class="w-14 shrink-0 text-right font-semibold tabular-nums text-gray-900">
+                    <span class="w-20 truncate shrink-0 text-gray-500">{{ ring.label }}</span>
+                    <span class="w-12 shrink-0 text-right font-semibold tabular-nums text-gray-900">
                         {{ formatNumber(ring.count) }}
                     </span>
-                    <span class="flex-1">
+                    <span class="flex-1 min-w-0">
                         <span class="block h-1.5 overflow-hidden bg-gray-100 rounded-full">
                             <span
                                 class="block h-full rounded-full"
@@ -60,7 +69,7 @@ const total = computed(() => props.stats.counts.unlocked)
                             />
                         </span>
                     </span>
-                    <span class="w-10 shrink-0 text-right tabular-nums text-gray-400">
+                    <span class="w-9 shrink-0 text-right tabular-nums text-gray-400">
                         {{ ring.share.toFixed(0) }}%
                     </span>
                 </li>
