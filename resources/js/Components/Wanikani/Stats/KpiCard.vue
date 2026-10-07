@@ -2,8 +2,20 @@
 /**
  * A headline number. `value` is already formatted by the caller so this stays a dumb
  * presentational component.
+ *
+ * `breakdown` adds a "How is this calculated?" toggle that shows the sum behind the
+ * number, line by line, with the account's own figures plugged in.
  */
+import { ref } from 'vue'
 import InfoTip from './InfoTip.vue'
+
+export interface KpiBreakdown {
+    lines: Array<{ label: string; calc?: string; value: string }>
+    total: string
+    note?: string
+}
+
+const isOpen = ref(false)
 
 withDefaults(
     defineProps<{
@@ -14,6 +26,7 @@ withDefaults(
         accent?: string
         tooltip?: string
         icon?: string
+        breakdown?: KpiBreakdown
     }>(),
     {
         hint: undefined,
@@ -21,6 +34,7 @@ withDefaults(
         accent: '#6366f1',
         tooltip: undefined,
         icon: undefined,
+        breakdown: undefined,
     },
 )
 </script>
@@ -46,5 +60,33 @@ withDefaults(
 
         <p v-if="detail" class="mt-2 text-xs text-gray-500">{{ detail }}</p>
         <p v-if="hint" class="mt-1.5 text-[11px] text-gray-400">{{ hint }}</p>
+
+        <template v-if="breakdown">
+            <button
+                type="button"
+                class="mt-3 text-[11px] font-medium text-indigo-600 hover:underline"
+                :aria-expanded="isOpen"
+                @click="isOpen = !isOpen"
+            >
+                {{ isOpen ? 'Hide calculation' : 'How is this calculated?' }}
+            </button>
+
+            <div v-if="isOpen" class="pt-3 mt-2 text-[11px] border-t border-gray-100">
+                <dl class="space-y-1.5">
+                    <div v-for="line in breakdown.lines" :key="line.label" class="flex justify-between gap-3">
+                        <dt class="min-w-0 text-gray-500">
+                            {{ line.label }}
+                            <span v-if="line.calc" class="block text-gray-400 tabular-nums">{{ line.calc }}</span>
+                        </dt>
+                        <dd class="font-medium text-gray-900 tabular-nums shrink-0">{{ line.value }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3 pt-1.5 border-t border-gray-100">
+                        <dt class="font-medium text-gray-700">Total</dt>
+                        <dd class="font-semibold text-gray-900 tabular-nums shrink-0">{{ breakdown.total }}</dd>
+                    </div>
+                </dl>
+                <p v-if="breakdown.note" class="mt-2.5 leading-relaxed text-gray-400">{{ breakdown.note }}</p>
+            </div>
+        </template>
     </div>
 </template>
