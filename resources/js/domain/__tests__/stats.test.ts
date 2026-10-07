@@ -189,7 +189,7 @@ function buildDataset(overrides: Partial<Dataset> = {}): Dataset {
       }),
       // Vocabulary unlocked but lesson not done yet.
       assignment(vocabOne, { srs_stage: 0 }),
-      // Kana vocabulary: granted without a lesson screen.
+      // Kana vocabulary: lesson done, now in reviews.
       assignment(kanaOne, {
         srs_stage: 1,
         started_at: '2026-05-01T00:00:00.000Z',
@@ -269,11 +269,11 @@ describe('reviewsToBurn', () => {
 })
 
 describe('time invested', () => {
-  it('counts only completed lessons, excluding kana vocabulary', () => {
-    // started_at is set on the radical, the kanji and the kana vocabulary — but kana
-    // vocabulary has no lesson screen, so only two lessons count.
+  it('counts every completed lesson, including kana vocabulary', () => {
+    // started_at is set on the radical, the kanji and the kana vocabulary. Kana
+    // vocabulary goes through the lesson queue too, so all three count.
     const stats = compute(buildDataset())
-    expect(stats.invested.lessonsCompleted).toBe(2)
+    expect(stats.invested.lessonsCompleted).toBe(3)
   })
 
   it('sums every meaning and reading answer', () => {
@@ -282,24 +282,15 @@ describe('time invested', () => {
     expect(stats.invested.answersRecorded).toBe(7)
   })
 
-  it('counts review sittings separately from answers', () => {
-    // The radical quizzes meaning only: 2 answers, 2 sittings. The kanji quizzes both
-    // parts together, so its 5 answers came from at most 3 sittings (the reading side
-    // was answered 3 times, the meaning side twice, and they share a queue slot).
+  it('counts one finished review per correct meaning answer', () => {
+    // The radical has 2 correct meanings and the kanji 1, so 3 finished reviews. Wrong
+    // answers are retries inside a review, not extra reviews.
     const stats = compute(buildDataset())
-    expect(stats.invested.reviewsSessions).toBe(5)
+    expect(stats.invested.reviewsCompleted).toBe(3)
     expect(stats.invested.answersRecorded).toBe(7)
   })
 
-  it('never reports more sittings than answers', () => {
-    const stats = compute(buildDataset())
-    expect(stats.invested.reviewsSessions).toBeLessThanOrEqual(stats.invested.answersRecorded)
-  })
-
-  it('does not double-count a sitting when one part is failed and re-asked', () => {
-    // This is the failure mode being guarded against: a wrong reading sends the whole
-    // item back, so the meaning is re-quizzed too. That inflates the answer count far
-    // more than the number of times the item actually came up.
+  it('does not count a failed-and-retried review twice', () => {
     const dataset = buildDataset()
     const kanjiOne = dataset.subjects.find((subject) => subject.id === 10)!
     const stats = compute({
@@ -313,36 +304,37 @@ describe('time invested', () => {
         }),
       ],
     })
-    // 4 answers, but only 2 distinct sittings, not 4.
+    // 4 answers, but only 1 finished review.
     expect(stats.invested.answersRecorded).toBe(4)
-    expect(stats.invested.reviewsSessions).toBe(2)
+    expect(stats.invested.reviewsCompleted).toBe(1)
   })
 
-  it('counts a meaning-only item as one answer per sitting', () => {
+  it('still counts reviews done on items that are now hidden', () => {
     const dataset = buildDataset()
     const radicalOne = dataset.subjects.find((subject) => subject.id === 1)!
     const stats = compute({
       ...dataset,
-      reviewStatistics: [statistic(radicalOne, { meaning_correct: 9, meaning_incorrect: 1 })],
+      reviewStatistics: [{ ...statistic(radicalOne, { meaning_correct: 9, meaning_incorrect: 1 }), hidden: true }],
     })
-    expect(stats.invested.answersRecorded).toBe(10)
-    expect(stats.invested.reviewsSessions).toBe(10)
+    expect(stats.invested.reviewsCompleted).toBe(9)
+    // Hidden items are left out of the time and accuracy figures.
+    expect(stats.invested.answersRecorded).toBe(0)
   })
 
   it('multiplies lessons by the lesson rate and answers by the review rate', () => {
     const stats = compute(buildDataset())
-    // 2 lessons x 90_000ms = 180_000; 7 answers x the default review rate.
+    // 3 lessons x 90_000ms = 270_000; 7 answers x the default review rate.
     const reviewMs = 7 * DEFAULT_SETTINGS.secondsPerReview * 1000
-    expect(stats.invested.lessonsMs).toBe(180_000)
+    expect(stats.invested.lessonsMs).toBe(270_000)
     expect(stats.invested.reviewsMs).toBe(reviewMs)
-    expect(stats.invested.totalMs).toBe(180_000 + reviewMs)
+    expect(stats.invested.totalMs).toBe(270_000 + reviewMs)
   })
 
   it('honours custom assumptions', () => {
     const settings: StudySettings = { secondsPerReview: 60, minutesPerLesson: 3, isPanelOpen: false }
     const stats = compute(buildDataset(), settings)
-    // 2 lessons x 180_000ms = 360_000; 7 answers x 60s = 420_000.
-    expect(stats.invested.totalMs).toBe(780_000)
+    // 3 lessons x 180_000ms = 540_000; 7 answers x 60s = 420_000.
+    expect(stats.invested.totalMs).toBe(960_000)
     expect(stats.assumptions.source).toBe('custom')
     expect(stats.assumptions.secondsPerReview).toBe(60)
   })
@@ -463,7 +455,7 @@ describe('remaining workload', () => {
     expect(asKanji.workload.answersRemaining).toBe(16)
   })
 
-  it('counts lessons for everything not yet started, except kana vocabulary', () => {
+  it('counts lessons for everything not yet started', () => {
     // Vocabulary 20, kanji 50 and vocabulary 60 still need lessons.
     const stats = compute(buildDataset())
     expect(stats.workload.lessonsRemaining).toBe(3)

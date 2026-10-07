@@ -18,7 +18,7 @@ const paceLabel = computed(
 const investedDetail = computed(
     () =>
         `${formatNumber(props.stats.invested.lessonsCompleted)} lessons + ${formatNumber(
-            props.stats.invested.reviewsSessions,
+            props.stats.invested.reviewsCompleted,
         )} reviews`,
 )
 

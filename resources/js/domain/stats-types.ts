@@ -77,12 +77,11 @@ export interface TimeInvested {
    */
   answersRecorded: number
   /**
-   * Distinct review sittings: how many times an item appeared in a review queue.
-   * A kanji or vocabulary review quizzes meaning and reading together, so this is
-   * roughly half of `answersRecorded` and is the figure a learner actually thinks of
-   * as "my number of reviews".
+   * Finished reviews: the sum of `meaning_correct`, because a review only ends once the
+   * meaning is answered correctly. Wrong answers are retries within the same review.
+   * Includes hidden items, matching what WaniKani (and shellf_study) count.
    */
-  reviewsSessions: number
+  reviewsCompleted: number
   /**
    * Mean answers spent on an item that reached burned.
    *

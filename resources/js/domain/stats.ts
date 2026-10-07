@@ -8,8 +8,8 @@
  * Modelling notes worth knowing before reading the maths:
  *
  * - `started_at` on an assignment is the moment the lesson was completed, so it is
- *   the lesson counter. Kana vocabulary has no lesson step in WaniKani, so it is
- *   excluded from lesson counts to avoid inflating time invested.
+ *   the lesson counter. Kana vocabulary goes through the lesson queue like everything
+ *   else, so it is counted.
  * - WaniKani retired the historical `/reviews` endpoint, so a per-review log no
  *   longer exists. `review_statistics` gives per-item outcome counters instead, and
  *   `data_updated_at` on each assignment is the last time that item was answered —
@@ -360,13 +360,9 @@ export function computeStats(
   // ------------------------------------------------------- time invested
   let lessonsCompleted = 0
   let investedReviews = 0
-  let reviewSessions = 0
+  let reviewsCompleted = 0
   for (const assignment of assignments) {
     if (assignment.hidden || !assignment.started_at) {
-      continue
-    }
-    if (assignment.subject_type === 'kana_vocabulary') {
-      // Kana vocabulary is granted without a lesson screen.
       continue
     }
     lessonsCompleted += 1
@@ -388,6 +384,12 @@ export function computeStats(
   let burnedItemAnswers = 0
 
   for (const stat of reviewStatistics) {
+    /*
+     * A review only finishes once the meaning is answered correctly, so every finished
+     * review adds exactly one `meaning_correct`. Wrong answers are retries inside the same
+     * review, not extra reviews. Hidden items still count: those reviews really happened.
+     */
+    reviewsCompleted += stat.meaning_correct
     if (stat.hidden) {
       continue
     }
@@ -414,13 +416,6 @@ export function computeStats(
     if ((assignmentBySubject.get(stat.subject_id)?.srs_stage ?? 0) >= 9) {
       burnedItemAnswers += answers
     }
-    // Meaning and reading are quizzed together, so one sitting is at least as long as
-    // the longer of the two. Taking the max avoids counting a sitting twice when a
-    // failure sends both parts back to be re-answered.
-    reviewSessions += hasReading
-      ? Math.max(meaningAnswers, readingAnswers)
-      : meaningAnswers
-
     addOutcome(accuracy.overall, stat, hasReading)
     accuracy.meaning.correct += stat.meaning_correct
     accuracy.meaning.incorrect += stat.meaning_incorrect
@@ -454,7 +449,7 @@ export function computeStats(
     reviewsMs: investedReviews * secondsPerReview * 1000,
     lessonsCompleted,
     answersRecorded: investedReviews,
-    reviewsSessions: reviewSessions,
+    reviewsCompleted,
     answersPerBurnedItem: counts.burned === 0 ? 0 : burnedItemAnswers / counts.burned,
     totalMs: investedLessonMs + investedReviews * secondsPerReview * 1000,
   }
@@ -477,7 +472,7 @@ export function computeStats(
     const subject = catalog.get(assignment.subject_id)
     const type = subject?.type ?? assignment.subject_type
 
-    if (!assignment.started_at && type !== 'kana_vocabulary') {
+    if (!assignment.started_at) {
       lessonsRemaining += 1
       lessonsRemainingByType.set(type, (lessonsRemainingByType.get(type) ?? 0) + 1)
     }
@@ -498,10 +493,8 @@ export function computeStats(
     stageUpsRemaining += 7
     answersRemaining += 7 * answersPerStageUp(subject.type)
     reviewsRemainingByType.set(subject.type, (reviewsRemainingByType.get(subject.type) ?? 0) + 7)
-    if (subject.type !== 'kana_vocabulary') {
-      lessonsRemaining += 1
-      lessonsRemainingByType.set(subject.type, (lessonsRemainingByType.get(subject.type) ?? 0) + 1)
-    }
+    lessonsRemaining += 1
+    lessonsRemainingByType.set(subject.type, (lessonsRemainingByType.get(subject.type) ?? 0) + 1)
   }
 
   // Time is computed from ANSWERS, matching how invested time is computed.

@@ -71,38 +71,20 @@ describeFixture('real account', () => {
   it('reports comparable quantities on the two headline cards', () => {
     // The cards sit side by side, so both sides must be lessons-and-reviews. Comparing
     // answers done against stage-ups remaining reads as nonsense.
-    expect(stats!.invested.reviewsSessions).toBeGreaterThan(0)
+    expect(stats!.invested.reviewsCompleted).toBeGreaterThan(0)
     expect(stats!.workload.stageUpsRemaining).toBeGreaterThan(0)
 
     // Invested reviews come from completed work; remaining ones from outstanding work.
     // Neither should be mistaken for the answer count.
-    expect(stats!.invested.reviewsSessions).not.toBe(stats!.invested.answersRecorded)
+    expect(stats!.invested.reviewsCompleted).not.toBe(stats!.invested.answersRecorded)
     expect(stats!.workload.stageUpsRemaining).not.toBe(stats!.workload.answersRemaining)
   })
 
-  it('derives review sittings from the longest side of each item', () => {
-    // One sitting quizzes meaning and reading together. A wrong part is re-asked, so
-    // the number of times an item appeared is the larger of the two counters — never
-    // half of the answer total, and never less than the meaning-only count.
-    const expected = dataset!.reviewStatistics.reduce((sum, stat) => {
-      const meaning = stat.meaning_correct + stat.meaning_incorrect
-      const hasReading = stat.subject_type === 'kanji' || stat.subject_type === 'vocabulary'
-      const reading = hasReading ? stat.reading_correct + stat.reading_incorrect : 0
-      return sum + Math.max(meaning, reading)
-    }, 0)
-    expect(stats!.invested.reviewsSessions).toBe(expected)
-  })
-
-  it('counts a meaning-only item as one sitting per appearance', () => {
-    // Radicals never record reading answers, so their sitting count equals their
-    // meaning answers and must not be halved or doubled.
-    const radicals = dataset!.reviewStatistics.filter((stat) => stat.subject_type === 'radical')
-    const radicalSittings = radicals.reduce(
-      (sum, stat) => sum + stat.meaning_correct + stat.meaning_incorrect,
-      0,
-    )
-    expect(radicalSittings).toBeGreaterThan(0)
-    expect(stats!.invested.reviewsSessions).toBeGreaterThan(radicalSittings)
+  it('counts one finished review per correct meaning answer', () => {
+    // A review ends only once the meaning is right, so finished reviews are the sum of
+    // meaning_correct across every item, hidden ones included.
+    const expected = dataset!.reviewStatistics.reduce((sum, stat) => sum + stat.meaning_correct, 0)
+    expect(stats!.invested.reviewsCompleted).toBe(expected)
   })
 
   it('counts remaining work in the same unit as invested work', () => {
@@ -128,10 +110,9 @@ describeFixture('real account', () => {
   })
 
   it('counts the same lessons the API reports', () => {
-    // started_at is the lesson counter, except for kana vocabulary, which WaniKani
-    // grants without a lesson screen.
+    // started_at is the lesson counter for every subject type, kana vocabulary included.
     const expected = dataset!.assignments.filter(
-      (assignment) => assignment.started_at !== null && assignment.subject_type !== 'kana_vocabulary',
+      (assignment) => !assignment.hidden && assignment.started_at !== null,
     ).length
     expect(stats!.invested.lessonsCompleted).toBe(expected)
   })
@@ -164,11 +145,9 @@ describeFixture('real account', () => {
     expect(stats!.projection.sampleSize).toBeGreaterThan(0)
   })
 
-  it('reports review sittings below the answer count', () => {
-    // Answers count meaning and reading separately; a sitting quizzes them together.
-    // So sittings must fall between half the answers and all of them.
-    expect(stats!.invested.reviewsSessions).toBeLessThan(stats!.invested.answersRecorded)
-    expect(stats!.invested.reviewsSessions).toBeGreaterThan(stats!.invested.answersRecorded / 2)
+  it('reports fewer finished reviews than answers', () => {
+    // Every finished review produces at least one answer, and kanji/vocabulary two.
+    expect(stats!.invested.reviewsCompleted).toBeLessThan(stats!.invested.answersRecorded)
   })
 
   it('keeps accuracy between zero and one hundred', () => {
