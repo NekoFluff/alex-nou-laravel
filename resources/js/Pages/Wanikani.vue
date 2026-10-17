@@ -109,7 +109,7 @@ onMounted(() => {
                         WaniKani
                     </h1>
                     <p class="mt-2 text-sm text-gray-500 sm:text-base">
-                        How long you have spent, how long is left, and where it is all going.
+                        Study time, level pace and accuracy.
                     </p>
                 </div>
 
@@ -242,18 +242,14 @@ onMounted(() => {
                                     <span class="text-pink-600">
                                         {{ Math.round(stats.invested.totalMs / 3_600_000).toLocaleString() }}h
                                     </span>
-                                    learning Japanese, with
-                                    <span class="text-blue-600">
-                                        {{ Math.round(stats.workload.totalMs / 3_600_000).toLocaleString() }}h
-                                    </span>
-                                    still to go.
+                                    learning Japanese.
                                 </h2>
                                 <p class="max-w-2xl mt-3 text-sm leading-relaxed text-gray-500">
                                     You have unlocked
                                     {{ stats.curriculumProgress.toFixed(1) }}% of everything there is to
                                     learn.
                                     <template v-if="stats.projection.levelsRemaining > 0">
-                                        At your usual pace of
+                                        At your recent pace of
                                         {{ stats.projection.daysPerLevel.toFixed(1) }} days per level
                                         you reach level 60 around
                                         <strong class="text-gray-800">{{
@@ -272,7 +268,7 @@ onMounted(() => {
                             <div class="p-4 bg-gray-50 rounded-xl">
                                 <div class="flex items-baseline justify-between text-xs">
                                     <span class="flex items-center gap-1.5 text-gray-500">
-                                        Course progress
+                                        WaniKani unlock progress
                                         <InfoTip
                                             text="The share of all WaniKani items you have unlocked."
                                         />
