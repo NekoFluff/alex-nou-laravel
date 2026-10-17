@@ -260,6 +260,13 @@ describe('ported WaniKani dashboard', () => {
         expect(api.settings.value.secondsPerReview).toBe(DEFAULT_SETTINGS.secondsPerReview)
     })
 
+    it('dates the data by when it was downloaded, not when the page loaded', async () => {
+        const { api } = await mountDashboard()
+
+        // A reload inside the cache TTL serves an older snapshot; "just now" would hide that.
+        expect(api.loadedAt.value?.toISOString()).toBe('2026-06-15T11:00:00.000Z')
+    })
+
     it('renders every panel without throwing', async () => {
         const { api } = await mountDashboard()
         expect(api.stats.value).not.toBeNull()

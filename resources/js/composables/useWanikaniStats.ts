@@ -74,12 +74,11 @@ export function useWanikaniStats(token: Ref<string | null>) {
     const progress = ref<LoadProgress>({ phase: 'idle', loaded: 0, total: 0, label: '' })
 
     /**
-     * When this session last completed a load.
+     * When the data on screen was downloaded from WaniKani.
      *
-     * Deliberately NOT `dataset.fetchedAt`: that value comes from the cache entry, so a
-     * load that reuses a 20-minute-old progress snapshot would report "Data 20 minutes
-     * ago" even though the summary and user were just re-read. This tracks the load the
-     * visitor is actually looking at.
+     * This is the progress snapshot's `fetchedAt`, not the time the load finished: a page
+     * reload within the cache TTL re-reads nothing but `/user`, so the assignments, reviews
+     * and summary shown can be up to 30 minutes old, and "just now" would hide that.
      */
     const loadedAt = ref<Date | null>(null)
 
@@ -150,7 +149,8 @@ export function useWanikaniStats(token: Ref<string | null>) {
 
             dataset.value = loaded
             stats.value = computeStats(loaded, settings.value, new Date())
-            loadedAt.value = new Date()
+            const fetchedAt = loaded.fetchedAt ? new Date(loaded.fetchedAt) : null
+            loadedAt.value = fetchedAt && !Number.isNaN(fetchedAt.getTime()) ? fetchedAt : new Date()
             progress.value = { phase: 'done', loaded: 1, total: 1, label: 'Ready' }
         } catch (e) {
             // A superseded load reports nothing: its failure is not the visitor's problem.

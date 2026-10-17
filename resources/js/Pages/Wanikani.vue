@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import GenericLayout from '@/Layouts/GenericLayout.vue';
 import ApiTokenControl from '@/Components/Wanikani/ApiTokenControl.vue';
 import KpiRow from '@/Components/Wanikani/Stats/KpiRow.vue';
@@ -46,6 +46,13 @@ const downloadPercent = (download: DownloadStep): number => {
     }
     return download.total > 0 ? (download.loaded / download.total) * 100 : download.status === 'active' ? 5 : 0;
 };
+
+/** Ticks so the freshness label ages while the page stays open. */
+const now = ref(new Date());
+const clock = window.setInterval(() => {
+    now.value = new Date();
+}, 30_000);
+onBeforeUnmount(() => window.clearInterval(clock));
 
 const hasToken = computed(() => activeToken.value !== null);
 const showDashboard = computed(() => hasToken.value && stats.value !== null);
@@ -115,7 +122,7 @@ onMounted(() => {
 
                 <div v-if="showDashboard" class="flex items-center gap-2">
                     <span v-if="loadedAt" class="text-[11px] text-gray-400">
-                        Data loaded {{ formatFreshness(loadedAt) }}
+                        Data loaded {{ formatFreshness(loadedAt, now) }}
                     </span>
                     <button
                         type="button"

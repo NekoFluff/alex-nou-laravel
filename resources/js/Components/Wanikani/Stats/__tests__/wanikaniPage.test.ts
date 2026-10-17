@@ -90,11 +90,15 @@ describeWithFixture('Pages/Wanikani.vue with a real account', () => {
         expect(text).toContain(String(dataset!.user.level))
         expect(text).toMatch(/\d+h lessons \+ \d+h reviews/)
 
-        // The freshness label describes the load the visitor is looking at. It must not
-        // report the cache entry's age, which is what caused a freshly loaded page to
-        // claim its data was already minutes old.
-        expect(text).toMatch(/Data loaded (just now|\d+ minutes? ago|\d+ hours? ago)/)
-        expect(text).toContain('Data loaded just now')
+        // The freshness label is the age of the data itself, which for the fixture is
+        // whenever it was recorded.
+        const { formatFreshness } = await import('@/domain/format')
+        const fetchedAt = dataset!.fetchedAt ? new Date(dataset!.fetchedAt) : null
+        if (fetchedAt) {
+            expect(text).toContain(`Data loaded ${formatFreshness(fetchedAt)}`)
+        } else {
+            expect(text).toContain('Data loaded just now')
+        }
 
         // No unresolved bindings leaked into the DOM.
         expect(text).not.toContain('NaN')
