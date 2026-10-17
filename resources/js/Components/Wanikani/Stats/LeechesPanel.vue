@@ -11,7 +11,7 @@ import StatPanel from './StatPanel.vue'
 import InfoTip from './InfoTip.vue'
 import ItemGlyph from './ItemGlyph.vue'
 import SrsChip from './SrsChip.vue'
-import { formatHours, formatNumber, formatPercent } from '@/domain/format'
+import { formatNumber, formatPercent } from '@/domain/format'
 import { SRS_PALETTE, SUBJECT_PALETTE } from '@/domain/wanikaniPalette'
 import { SUBJECT_TYPE_LABELS } from '@/domain/constants'
 import type { StudySettings, WaniKaniStats } from '@/domain/stats-types'
@@ -23,13 +23,6 @@ const VISIBLE = 8
 
 const items = computed(() => props.stats.leeches.items)
 const visibleItems = computed(() => (isExpanded.value ? items.value : items.value.slice(0, VISIBLE)))
-
-/** What these problem items alone will cost in review time, mistakes included. */
-const leechCost = computed(() => {
-    const totalMisses = items.value.reduce((sum, item) => sum + item.incorrect, 0)
-    const remaining = items.value.reduce((sum, item) => sum + (9 - item.srsStage), 0)
-    return (totalMisses + remaining) * props.settings.secondsPerReview * 1000
-})
 
 const totalMisses = computed(() => items.value.reduce((sum, item) => sum + item.incorrect, 0))
 </script>
@@ -156,10 +149,7 @@ const totalMisses = computed(() => items.value.reduce((sum, item) => sum + item.
 
         <template v-if="items.length > 0" #footer>
             <span>
-                {{ formatNumber(totalMisses) }} recorded misses across these items. Clearing them will
-                take roughly
-                <strong class="text-gray-600">{{ formatHours(leechCost) }}</strong>
-                of extra review time.
+                {{ formatNumber(totalMisses) }} recorded misses across these items.
             </span>
         </template>
     </StatPanel>

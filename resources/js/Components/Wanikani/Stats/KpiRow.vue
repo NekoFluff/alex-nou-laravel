@@ -1,7 +1,6 @@
 <script setup lang="ts">
 /**
- * The headline numbers. Order matters: time invested and time remaining are the two the
- * whole dashboard exists to answer, so they lead.
+ * The headline numbers: how much time has gone in, and when it is expected to end.
  */
 import { computed } from 'vue'
 import KpiCard, { type KpiBreakdown } from './KpiCard.vue'
@@ -31,22 +30,7 @@ const investedHint = computed(
 
 const investedTooltip = computed(
     () =>
-        `Each lesson counts as ${props.settings.minutesPerLesson} min and each answer you've typed as ${props.settings.secondsPerReview}s. You can change both under Assumptions.`,
-)
-
-/** Same shape and order as the invested hint, so the two cards read against each other. */
-const remainingDetail = computed(
-    () =>
-        `${formatNumber(props.stats.workload.lessonsRemaining)} lessons + ${formatNumber(
-            props.stats.workload.stageUpsRemaining,
-        )} reviews`,
-)
-
-const remainingHint = computed(
-    () =>
-        `${formatHours(props.stats.workload.lessonsMs)} lessons + ${formatHours(
-            props.stats.workload.reviewsMs,
-        )} reviews`,
+        `Each lesson counts as ${props.settings.minutesPerLesson} min and each answer you've typed as ${props.settings.secondsPerReview}s. You can change both under Settings.`,
 )
 
 const lessonRate = computed(() => `${props.settings.minutesPerLesson} min`)
@@ -72,35 +56,6 @@ const investedBreakdown = computed<KpiBreakdown>(() => {
     }
 })
 
-const remainingBreakdown = computed<KpiBreakdown>(() => {
-    const workload = props.stats.workload
-    return {
-        lines: [
-            {
-                label: 'Lessons left',
-                calc: `${formatNumber(workload.lessonsRemaining)} lessons × ${lessonRate.value}`,
-                value: formatHours(workload.lessonsMs),
-            },
-            {
-                label: 'Reviews left',
-                calc: `${formatNumber(workload.answersRemaining)} answers × ${answerRate.value}`,
-                value: formatHours(workload.reviewsMs),
-            },
-        ],
-        total: formatHours(workload.totalMs),
-        note: `Each item needs one correct review per stage until it burns: 9 minus its current stage, or 7 if you haven't started it. That's ${formatNumber(workload.stageUpsRemaining)} reviews, and kanji and vocab count twice (meaning and reading), giving ${formatNumber(workload.answersRemaining)} answers. Assumes no more mistakes.`,
-    }
-})
-
-const journeyBreakdown = computed<KpiBreakdown>(() => ({
-    lines: [
-        { label: 'Time invested', value: formatHours(props.stats.invested.totalMs) },
-        { label: 'Time remaining', value: formatHours(props.stats.workload.totalMs) },
-    ],
-    total: formatHours(props.stats.projection.totalCurriculumMs),
-    note: `${formatNumber(props.stats.counts.unlocked)} of ${formatNumber(props.stats.counts.total)} items unlocked so far.`,
-}))
-
 const etaDetail = computed(() => {
     if (props.stats.projection.levelsRemaining === 0) {
         return 'Level 60 reached 🎉'
@@ -108,11 +63,10 @@ const etaDetail = computed(() => {
     return `${props.stats.projection.levelsRemaining} levels left at ${props.stats.projection.daysPerLevel.toFixed(1)} days each`
 })
 
-const journeyProgress = computed(() => props.stats.curriculumProgress)
 </script>
 
 <template>
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <KpiCard
             label="Time invested"
             icon="⏳"
@@ -122,28 +76,6 @@ const journeyProgress = computed(() => props.stats.curriculumProgress)
             :accent="'#dd0093'"
             :tooltip="investedTooltip"
             :breakdown="investedBreakdown"
-        />
-
-        <KpiCard
-            label="Time remaining"
-            icon="🎯"
-            :value="formatHours(stats.workload.totalMs)"
-            :detail="remainingDetail"
-            :hint="remainingHint"
-            :accent="'#294ddb'"
-            tooltip="The lessons you have left, plus the reviews needed to burn every item, including ones you haven't unlocked yet. Assumes you don't miss anything from here on."
-            :breakdown="remainingBreakdown"
-        />
-
-        <KpiCard
-            label="Whole journey"
-            icon="🏔️"
-            :value="formatHours(stats.projection.totalCurriculumMs)"
-            :detail="`${journeyProgress.toFixed(1)}% unlocked`"
-            hint="Level 1 through 60, lessons and reviews"
-            :accent="'#0093dd'"
-            tooltip="Time invested plus time remaining: the whole course, level 1 to 60. The percentage is how many items you've unlocked, not how much of the time you've spent."
-            :breakdown="journeyBreakdown"
         />
 
         <KpiCard

@@ -66,13 +66,9 @@ describeWithFixture('Pages/Wanikani.vue with a real account', () => {
 
         for (const panel of [
             'Time invested',
-            'Time remaining',
-            'Whole journey',
             'Projected finish',
-            'Burn forecast',
             'Current level',
             'SRS stages',
-            'Next 48 hours',
             'Level history',
             'Accuracy',
             'Content progress',

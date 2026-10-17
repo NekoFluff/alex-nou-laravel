@@ -69,6 +69,8 @@ export interface CatalogSnapshot {
   subjects: Subject[]
   spacedRepetitionSystem: SpacedRepetitionSystem | null
   etag?: string | null
+  /** The collection's `data_updated_at`, sent back as `updated_after` to fetch only changes. */
+  dataUpdatedAt?: string | null
 }
 
 /**
@@ -94,32 +96,44 @@ export function slimSubjects(subjects: Subject[]): Subject[] {
   })) as Subject[]
 }
 
-export type LoadPhase =
-  | 'idle'
-  | 'validating'
-  | 'cache'
-  | 'catalog'
-  | 'progress'
-  | 'summary'
-  | 'computing'
-  | 'done'
+export type LoadPhase = 'idle' | 'validating' | 'cache' | 'downloading' | 'computing' | 'done'
+
+/** One collection download, shown as its own row so parallel downloads never share a bar. */
+export type DownloadKey = 'catalog' | 'assignments' | 'reviews' | 'levels'
+
+export interface DownloadStep {
+  key: DownloadKey
+  label: string
+  loaded: number
+  total: number
+  status: 'pending' | 'active' | 'done'
+  /** Set when the step finished without downloading anything (served from cache). */
+  cached?: boolean
+}
 
 export interface LoadProgress {
   phase: LoadPhase
   loaded: number
   total: number
   label: string
+  /** Per-collection progress, in display order. Empty until downloading starts. */
+  downloads?: DownloadStep[]
 }
 
 export const PHASE_LABELS: Record<LoadPhase, string> = {
   idle: 'Waiting',
-  validating: 'Checking your token',
+  validating: 'Checking token',
   cache: 'Reading local cache',
-  catalog: 'Downloading the subject catalog',
-  progress: 'Downloading your assignments, reviews and level history',
-  summary: 'Downloading the review forecast',
+  downloading: 'Downloading WaniKani data',
   computing: 'Crunching numbers',
   done: 'Ready',
+}
+
+export const DOWNLOAD_LABELS: Record<DownloadKey, string> = {
+  catalog: 'Downloading the subject catalog',
+  assignments: 'Downloading assignments',
+  reviews: 'Downloading review statistics',
+  levels: 'Downloading level history',
 }
 
 /** Validates a token and returns the account it belongs to. */
@@ -183,88 +197,131 @@ export async function loadDataset(
       ? cachedProgress.value
       : null
 
-  // ------------------------------------------------------------- catalog
-  report({ phase: 'catalog', loaded: 0, total: 0, label: PHASE_LABELS.catalog })
+  // The catalog barely changes, so a cache younger than its TTL is used without asking.
+  // Revalidating on every load is what made "Downloading the subject catalog" reappear on
+  // each refresh: the API's ETag is not exposed to browsers, so the conditional request
+  // never had a validator and fell through to a full ~9,400-subject download.
+  const freshCatalog =
+    !force &&
+    cachedCatalog &&
+    cachedCatalog.ageMs < CACHE_TTL.catalog &&
+    cachedCatalog.value.subjects.length > 0 &&
+    cachedCatalog.value.spacedRepetitionSystem
+      ? cachedCatalog.value
+      : null
 
-  const catalogResult = await fetchSubjects(token, {
-    ...requestOptions,
-    etag: cachedCatalog?.value.etag ?? null,
-    onProgress: (loaded, total) => report({ phase: 'catalog', loaded, total, label: PHASE_LABELS.catalog }),
+  // ------------------------------------------------------- download rows
+  const steps: DownloadStep[] = (['catalog', 'assignments', 'reviews', 'levels'] as const).map((key) => {
+    const cached = key === 'catalog' ? freshCatalog !== null : freshProgress !== null
+    return { key, label: DOWNLOAD_LABELS[key], loaded: 0, total: 0, status: cached ? 'done' : 'pending', cached }
   })
-
-  let catalog: CatalogSnapshot
-  if (catalogResult.status === 'modified') {
-    catalog = {
-      fetchedAt: new Date().toISOString(),
-      subjects: slimSubjects(catalogResult.data),
-      spacedRepetitionSystem: cachedCatalog?.value.spacedRepetitionSystem ?? null,
-      etag: catalogResult.meta.etag,
+  const emit = () => {
+    const active = steps.filter((step) => step.status !== 'done' || !step.cached)
+    report({
+      phase: 'downloading',
+      loaded: active.reduce((sum, step) => sum + step.loaded, 0),
+      total: active.reduce((sum, step) => sum + step.total, 0),
+      label: PHASE_LABELS.downloading,
+      downloads: steps.map((step) => ({ ...step })),
+    })
+  }
+  const step = (key: DownloadKey) => steps.find((entry) => entry.key === key)!
+  const track = (key: DownloadKey) => (loaded: number, total: number) => {
+    Object.assign(step(key), { loaded, total, status: 'active' })
+    emit()
+  }
+  const finish = <T>(key: DownloadKey) => (outcome: T): T => {
+    const entry = step(key)
+    entry.status = 'done'
+    // A 304 or an empty incremental fetch downloaded nothing; say so instead of "0 of 0".
+    entry.cached = entry.total === 0
+    if (entry.total > 0) {
+      entry.loaded = entry.total
     }
-  } else if (cachedCatalog) {
-    // `unmodified` (304) or `missing`: the cached pages are still the best data we have.
-    catalog = cachedCatalog.value
-  } else {
-    // Nothing cached and the server reported no change: treat as an empty catalog
-    // rather than failing the whole load.
-    catalog = { fetchedAt: new Date().toISOString(), subjects: [], spacedRepetitionSystem: null, etag: null }
+    emit()
+    return outcome
+  }
+  const begin = (key: DownloadKey) => {
+    step(key).status = 'active'
   }
 
-  let spacedRepetitionSystem = catalog.spacedRepetitionSystem
-  if (!spacedRepetitionSystem) {
-    const systems = await fetchSpacedRepetitionSystems(token, requestOptions).catch(() => [])
-    spacedRepetitionSystem = pickDefaultSrs(systems)
-  }
-  if (spacedRepetitionSystem !== catalog.spacedRepetitionSystem || catalogResult.status === 'modified') {
-    catalog = { ...catalog, spacedRepetitionSystem }
+  // ------------------------------------------------------------- catalog
+  const loadCatalog = async (): Promise<CatalogSnapshot> => {
+    if (freshCatalog) {
+      return freshCatalog
+    }
+
+    begin('catalog')
+    const previous = cachedCatalog?.value ?? null
+    // With a cached catalog, ask only for subjects changed since it was taken. That is
+    // usually an empty page, and it works through CORS where `If-None-Match` cannot.
+    const since = previous && previous.subjects.length > 0 ? (previous.dataUpdatedAt ?? null) : null
+
+    const result = await fetchSubjects(
+      token,
+      { ...requestOptions, etag: previous?.etag ?? null, onProgress: track('catalog') },
+      since ? { updated_after: since } : {},
+    ).then(finish('catalog'))
+
+    let catalog: CatalogSnapshot
+    if (result.status === 'modified') {
+      catalog = {
+        fetchedAt: new Date().toISOString(),
+        subjects: since && previous ? mergeById(previous.subjects, slimSubjects(result.data)) : slimSubjects(result.data),
+        spacedRepetitionSystem: previous?.spacedRepetitionSystem ?? null,
+        etag: result.meta.etag ?? previous?.etag ?? null,
+        dataUpdatedAt: result.meta.dataUpdatedAt ?? previous?.dataUpdatedAt ?? null,
+      }
+    } else if (previous) {
+      // `unmodified` (304) or `missing`: the cached pages are still the best data we have.
+      catalog = { ...previous, fetchedAt: new Date().toISOString() }
+    } else {
+      // Nothing cached and the server reported no change: treat as an empty catalog
+      // rather than failing the whole load.
+      catalog = { fetchedAt: new Date().toISOString(), subjects: [], spacedRepetitionSystem: null, etag: null }
+    }
+
+    if (!catalog.spacedRepetitionSystem) {
+      const systems = await fetchSpacedRepetitionSystems(token, requestOptions).catch(() => [])
+      catalog = { ...catalog, spacedRepetitionSystem: pickDefaultSrs(systems) }
+    }
+    // Re-written even when nothing changed, so the TTL restarts from this check.
     await writeCache(cacheKeys.catalog(CATALOG_REVISION), catalog)
+    return catalog
   }
 
   // ------------------------------------------------------------ progress
-  let progress = freshProgress
-
-  if (!progress) {
+  const loadProgress = async (): Promise<ProgressSnapshot> => {
+    if (freshProgress) {
+      return freshProgress
+    }
     const cached = cachedProgress?.value ?? null
-
-    // These three download in parallel, so their counts are pooled into one bar.
-    // Reporting each separately made the label and bar flicker between them.
-    const counts = {
-      assignments: { loaded: 0, total: 0 },
-      reviews: { loaded: 0, total: 0 },
-      levels: { loaded: 0, total: 0 },
-    }
-    const track = (key: keyof typeof counts) => (loaded: number, total: number) => {
-      counts[key] = { loaded, total }
-      const all = Object.values(counts)
-      report({
-        phase: 'progress',
-        loaded: all.reduce((sum, c) => sum + c.loaded, 0),
-        total: all.reduce((sum, c) => sum + c.total, 0),
-        label: PHASE_LABELS.progress,
-      })
-    }
+    begin('assignments')
+    begin('reviews')
+    begin('levels')
 
     const [assignments, reviewStatistics, levelProgressions, resets] = await Promise.all([
       fetchAssignments(token, {
         ...requestOptions,
         etag: cached?.etags?.assignments ?? null,
         onProgress: track('assignments'),
-      }),
+      }).then(finish('assignments')),
       fetchReviewStatistics(token, {
         ...requestOptions,
         etag: cached?.etags?.reviewStatistics ?? null,
         onProgress: track('reviews'),
-      }),
+      }).then(finish('reviews')),
       fetchLevelProgressions(token, {
         ...requestOptions,
         etag: cached?.etags?.levelProgressions ?? null,
         onProgress: track('levels'),
-      }),
+      }).then(finish('levels')),
       // A reset is rare and explains otherwise-baffling level history, so a failure
       // here should not sink the whole load.
       fetchResets(token, requestOptions).catch(() => null),
     ])
 
-    progress = {
+    const progress: ProgressSnapshot = {
       fetchedAt: new Date().toISOString(),
       assignments: assignments.status === 'modified' ? assignments.data : (cached?.assignments ?? []),
       reviewStatistics:
@@ -281,7 +338,13 @@ export async function loadDataset(
       },
     }
     await writeCache(cacheKeys.progress(userId), progress)
+    return progress
   }
+
+  if (!freshCatalog || !freshProgress) {
+    emit()
+  }
+  const [catalog, progress] = await Promise.all([loadCatalog(), loadProgress()])
 
   report({ phase: 'computing', loaded: 0, total: 1, label: PHASE_LABELS.computing })
 
@@ -296,6 +359,17 @@ export async function loadDataset(
     spacedRepetitionSystem: catalog.spacedRepetitionSystem,
     fetchedAt: progress.fetchedAt,
   }
+}
+
+/** Applies an incremental subject fetch over the cached catalog, keeping its order. */
+function mergeById(base: Subject[], updates: Subject[]): Subject[] {
+  if (updates.length === 0) {
+    return base
+  }
+  const byId = new Map(updates.map((subject) => [subject.id, subject]))
+  const merged = base.map((subject) => byId.get(subject.id) ?? subject)
+  const known = new Set(base.map((subject) => subject.id))
+  return merged.concat(updates.filter((subject) => !known.has(subject.id)))
 }
 
 /** Keeps the previous ETag when a collection came back unchanged. */

@@ -275,6 +275,7 @@ export async function fetchCollection<T extends object>(
   // Every page of a collection shares one ETag, so it only gates the first request. A
   // 304 there means the whole cached collection is still current.
   const firstPageEtag: string | null = options.etag ?? null
+  let bodyUpdatedAt: string | null = null
 
   while (url) {
     if (page >= maxPages) {
@@ -298,13 +299,19 @@ export async function fetchCollection<T extends object>(
 
     records.push(...unwrapRecords<T>(response.body.data))
     total = response.body.total_count
+    // WaniKani does not list `ETag` in `access-control-expose-headers`, so a browser never
+    // sees it. The body's ISO timestamp is preferred over `Last-Modified` (an HTTP date)
+    // because it is the format `updated_after` documents.
+    if (page === 0) {
+      bodyUpdatedAt = response.body.data_updated_at ?? null
+    }
     page += 1
 
     options.onProgress?.(records.length, total ?? records.length)
     url = response.body.pages.next_url
   }
 
-  return { status: 'modified', data: records, meta }
+  return { status: 'modified', data: records, meta: { ...meta, dataUpdatedAt: bodyUpdatedAt ?? meta.dataUpdatedAt } }
 }
 
 // ---------------------------------------------------------------- endpoints
@@ -341,8 +348,12 @@ export function fetchLevelProgressions(
  * The catalog is what makes an exact "time remaining" possible: assignments only
  * cover unlocked items, so without it the unlearned levels would have to be guessed.
  */
-export function fetchSubjects(token: string, options: RequestOptions = {}): Promise<FetchOutcome<Subject[]>> {
-  return fetchCollection<Subject>('subjects', token, {}, options)
+export function fetchSubjects(
+  token: string,
+  options: RequestOptions = {},
+  params: { updated_after?: string } = {},
+): Promise<FetchOutcome<Subject[]>> {
+  return fetchCollection<Subject>('subjects', token, params, options)
 }
 
 /**

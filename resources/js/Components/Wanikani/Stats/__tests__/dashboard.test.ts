@@ -270,8 +270,6 @@ describe('ported WaniKani dashboard', () => {
                 'TimeInvestmentPanel',
                 'CurrentLevelPanel',
                 'SrsBreakdown',
-                'ReviewForecastPanel',
-                'BurnForecastPanel',
                 'LevelHeatmap',
                 'AccuracyPanel',
                 'ContentProgressPanel',
@@ -284,10 +282,13 @@ describe('ported WaniKani dashboard', () => {
 
         const kpis = mount(KpiRow, { props: { stats, settings }, global: { stubs: { VueApexCharts: chartStub } } })
         const kpiText = kpis.text()
-        for (const label of ['Time invested', 'Time remaining', 'Whole journey', 'Projected finish']) {
+        for (const label of ['Time invested', 'Projected finish']) {
             expect(kpiText, `expected the "${label}" card`).toContain(label)
         }
-        // Both time cards state their breakdown in hours, lessons first.
+        for (const label of ['Time remaining', 'Whole journey']) {
+            expect(kpiText, `the "${label}" card was removed`).not.toContain(label)
+        }
+        // The time card states its breakdown in hours, lessons first.
         // Hours are fractional at fixture scale, so the matcher must accept decimals.
         expect(kpiText).toMatch(/[\d.,]+h lessons \+ [\d.,]+h reviews/)
         expect(kpiText).not.toContain('NaN')
@@ -299,12 +300,10 @@ describe('ported WaniKani dashboard', () => {
             [0, 'Time invested'],
             [1, 'Current level'],
             [2, 'SRS stages'],
-            [3, 'Next 24 hours'],
-            [4, 'Burn forecast'],
-            [5, 'Level history'],
-            [6, 'Accuracy'],
-            [7, 'Content progress'],
-            [8, 'Leeches'],
+            [3, 'Level history'],
+            [4, 'Accuracy'],
+            [5, 'Content progress'],
+            [6, 'Leeches'],
         ]
 
         for (const [index, marker] of expectations) {
@@ -398,6 +397,31 @@ describe('ported WaniKani dashboard', () => {
                 expect(title).toContain(`Est. ${dates(row.projectedPassAt)}`)
             }
         }
+
+        wrapper.unmount()
+    })
+
+    it('shows a tapped level in the detail card, since tooltips never appear on touch', async () => {
+        const { api } = await mountDashboard()
+        const LevelHeatmap = (await import('@/Components/Wanikani/Stats/LevelHeatmap.vue')).default
+        const stats = api.stats.value!
+        const wrapper = mount(LevelHeatmap, {
+            props: { stats, settings: api.settings.value },
+            global: { stubs: { VueApexCharts: chartStub } },
+        })
+
+        const current = stats.levels.rows.find((row) => row.isCurrent)
+        if (current) {
+            expect(wrapper.get('[data-testid="level-detail"]').text()).toContain(`Level ${current.level}`)
+        }
+
+        const target = stats.levels.rows.find((row) => !row.isCurrent && row.subjectCount > 0)!
+        await wrapper.get(`[data-level="${target.level}"]`).trigger('click')
+
+        const detail = wrapper.get('[data-testid="level-detail"]').text()
+        expect(detail).toContain(`Level ${target.level}`)
+        expect(detail).toContain(`${target.unlocked}/${target.subjectCount}`)
+        expect(wrapper.get(`[data-level="${target.level}"]`).attributes('aria-pressed')).toBe('true')
 
         wrapper.unmount()
     })

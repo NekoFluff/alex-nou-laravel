@@ -5,7 +5,7 @@
  * Shading is computed in JS rather than through Tailwind classes because the colour
  * depends on data — and Tailwind cannot see class names built at runtime.
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import StatPanel from './StatPanel.vue'
 import InfoTip from './InfoTip.vue'
 import BarChart from './BarChart.vue'
@@ -75,6 +75,43 @@ function levelTooltip(row: (typeof rows.value)[number]): string {
     return parts.join(' · ')
 }
 
+/**
+ * The tapped level, shown in a detail card under the grid.
+ *
+ * Tooltips via `title` never appear on touch screens, so the counts used to be
+ * unreachable on a phone. Tapping a tile selects it instead; the current level is
+ * selected until the visitor picks another.
+ */
+const selectedLevel = ref<number | null>(null)
+
+const selected = computed(() => {
+    const level = selectedLevel.value ?? rows.value.find((row) => row.isCurrent)?.level ?? null
+    return rows.value.find((row) => row.level === level) ?? null
+})
+
+function selectLevel(level: number): void {
+    selectedLevel.value = level
+}
+
+function levelStatus(row: (typeof rows.value)[number]): string {
+    if (row.subjectCount === 0) {
+        return 'No subjects'
+    }
+    if (row.burned === row.subjectCount) {
+        return 'Fully burned'
+    }
+    if (row.isCurrent) {
+        return 'Current level'
+    }
+    if (row.isComplete) {
+        return 'Passed'
+    }
+    if (row.unlocked > 0) {
+        return 'In progress'
+    }
+    return 'Locked'
+}
+
 const recent = computed(() => props.stats.levels.recentDurations)
 const chartLabels = computed(() => recent.value.map((entry) => `L${entry.level}`))
 const chartValues = computed(() => recent.value.map((entry) => Number(entry.days.toFixed(1))))
@@ -101,26 +138,71 @@ const resets = computed(() => props.stats.levels.resets)
     <StatPanel title="Level history" subtitle="All 60 levels, shaded by progress">
         <template #actions>
             <InfoTip
-                text="Purple means items passed, blue means items burned. Levels fill in slowly because burning takes months. Hover a square for details."
+                text="Purple means items passed, blue means items burned. Levels fill in slowly because burning takes months. Tap a square for details."
             />
         </template>
 
-        <div class="grid grid-cols-10 gap-1.5">
-            <div
+        <!-- Six columns on phones keep each tile a comfortable tap target. -->
+        <div class="grid grid-cols-6 gap-2 sm:grid-cols-10 sm:gap-1.5">
+            <button
                 v-for="row in rows"
                 :key="row.level"
-                class="relative grid text-[10px] font-semibold tabular-nums transition-transform rounded-md aspect-square place-items-center hover:scale-110"
+                type="button"
+                class="relative grid text-xs font-semibold tabular-nums transition-transform rounded-md sm:text-[10px] aspect-square place-items-center touch-manipulation sm:hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1"
+                :class="selected?.level === row.level ? 'ring-2 ring-gray-900 ring-offset-1' : ''"
                 :style="levelStyle(row)"
                 :title="levelTooltip(row)"
+                :aria-label="`Level ${row.level}: ${levelTooltip(row)}`"
+                :aria-pressed="selected?.level === row.level"
                 :data-level="row.level"
+                @click="selectLevel(row.level)"
             >
                 {{ row.level }}
                 <span
                     v-if="row.isCurrent"
                     class="absolute -top-1 -right-1 rounded-full size-2.5 border-2 border-white bg-indigo-600"
-                    aria-label="current level"
+                    aria-hidden="true"
                 />
+            </button>
+        </div>
+
+        <div
+            v-if="selected"
+            class="px-3.5 py-3 mt-4 bg-gray-50 rounded-xl"
+            aria-live="polite"
+            data-testid="level-detail"
+        >
+            <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <p class="text-sm font-semibold text-gray-900">
+                    Level {{ selected.level }}
+                    <span class="ml-1 text-[11px] font-normal text-gray-500">{{ levelStatus(selected) }}</span>
+                </p>
+                <p class="text-[11px] text-gray-500">
+                    <template v-if="selected.passedAt">Passed {{ formatDate(selected.passedAt) }}</template>
+                    <template v-else-if="selected.projectedPassAt">
+                        Est. {{ formatDate(selected.projectedPassAt) }}
+                    </template>
+                    <template v-if="selected.daysSpent !== null">
+                        · {{ selected.daysSpent.toFixed(1) }} days
+                    </template>
+                </p>
             </div>
+            <dl v-if="selected.subjectCount > 0" class="grid grid-cols-3 gap-3 mt-2.5 text-xs">
+                <div>
+                    <dt class="text-[10px] uppercase tracking-wide text-gray-400">Unlocked</dt>
+                    <dd class="font-semibold tabular-nums text-gray-900">
+                        {{ selected.unlocked }}<span class="font-normal text-gray-400">/{{ selected.subjectCount }}</span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-[10px] uppercase tracking-wide text-gray-400">Passed</dt>
+                    <dd class="font-semibold tabular-nums text-gray-900">{{ selected.passed }}</dd>
+                </div>
+                <div>
+                    <dt class="text-[10px] uppercase tracking-wide text-gray-400">Burned</dt>
+                    <dd class="font-semibold tabular-nums text-gray-900">{{ selected.burned }}</dd>
+                </div>
+            </dl>
         </div>
 
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-4 text-[10px] text-gray-400">

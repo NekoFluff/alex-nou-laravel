@@ -8,8 +8,8 @@
  * the sequence below expressible.
  *
  * The catalogue is by far the most expensive thing to fetch — 10 pages, ~19.5 MB — and it
- * changes only when WaniKani adds content. A refresh should cost one conditional request
- * that returns 304.
+ * changes only when WaniKani adds content. A page refresh inside the TTL should cost no
+ * request at all, and a forced refresh only the subjects updated since the last fetch.
  */
 import { describe, expect, it, vi, afterEach } from 'vitest'
 import { loadDataset } from '@/api/loader'
@@ -54,7 +54,11 @@ function route(request: Seen): Response {
     const { url, ifNoneMatch } = request
 
     if (url.includes('/subjects')) {
-        return ifNoneMatch === ETAG ? new Response(null, { status: 304 }) : collectionPage(url, [1, 2, 3])
+        if (ifNoneMatch === ETAG) {
+            return new Response(null, { status: 304 })
+        }
+        // An incremental fetch returns only the subjects changed since then: here, one.
+        return collectionPage(url, url.includes('updated_after') ? [2] : [1, 2, 3])
     }
     if (url.includes('/assignments') || url.includes('/review_statistics') || url.includes('/level_progressions') || url.includes('/resets')) {
         return collectionPage(url, [])
@@ -120,37 +124,46 @@ describe('catalogue revalidation', () => {
         expect(dataset.subjects).toHaveLength(3)
         expect(subjectsRequests(seen)).toHaveLength(1)
         expect(subjectsRequests(seen)[0].ifNoneMatch).toBeUndefined()
+        expect(subjectsRequests(seen)[0].url).not.toContain('updated_after')
     })
 
-    it('sends the stored ETag on the NEXT load and re-downloads nothing on a 304', async () => {
+    it('makes no catalogue request on the next load while the cache is fresh', async () => {
         // First load populates the cache.
         stubFetch()
         await loadDataset(TOKEN)
 
-        // Second load is the refresh: this is the case that was reported broken.
+        // Second load is the page refresh: this is the case that was reported broken.
         const seen = stubFetch()
-        const dataset = await loadDataset(TOKEN)
+        const steps: string[] = []
+        const dataset = await loadDataset(TOKEN, {
+            onProgress: (progress) => {
+                const catalog = progress.downloads?.find((step) => step.key === 'catalog')
+                if (catalog) {
+                    steps.push(`${catalog.status}:${catalog.cached ? 'cached' : 'net'}`)
+                }
+            },
+        })
 
-        const subjects = subjectsRequests(seen)
-        expect(subjects, 'second load should make exactly one catalogue request').toHaveLength(1)
-        expect(subjects[0].ifNoneMatch, 'catalogue request must revalidate with the stored ETag').toBe(
-            ETAG,
-        )
-
+        expect(subjectsRequests(seen), 'a fresh catalogue must not be re-requested').toHaveLength(0)
+        // With everything cached no download rows are shown; if any were, the catalog
+        // must read as already up to date rather than downloading.
+        expect(steps.every((step) => step === 'done:cached')).toBe(true)
         // And the cached subjects still came through, rather than an empty catalogue.
         expect(dataset.subjects).toHaveLength(3)
     })
 
-    it('revalidates the catalogue on a forced refresh too', async () => {
+    it('asks only for changed subjects on a forced refresh', async () => {
         stubFetch()
         await loadDataset(TOKEN)
 
         const seen = stubFetch()
-        await loadDataset(TOKEN, { force: true })
+        const dataset = await loadDataset(TOKEN, { force: true })
 
         const subjects = subjectsRequests(seen)
         expect(subjects).toHaveLength(1)
-        expect(subjects[0].ifNoneMatch).toBe(ETAG)
+        // The browser cannot read the ETag header, so the body's timestamp drives this.
+        expect(new URL(subjects[0].url).searchParams.get('updated_after')).toBe('2026-09-28T06:06:11.343505Z')
+        expect(dataset.subjects).toHaveLength(3)
     })
 })
 

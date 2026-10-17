@@ -8,8 +8,6 @@ import AssumptionsPanel from '@/Components/Wanikani/Stats/AssumptionsPanel.vue';
 import TimeInvestmentPanel from '@/Components/Wanikani/Stats/TimeInvestmentPanel.vue';
 import CurrentLevelPanel from '@/Components/Wanikani/Stats/CurrentLevelPanel.vue';
 import SrsBreakdown from '@/Components/Wanikani/Stats/SrsBreakdown.vue';
-import ReviewForecastPanel from '@/Components/Wanikani/Stats/ReviewForecastPanel.vue';
-import BurnForecastPanel from '@/Components/Wanikani/Stats/BurnForecastPanel.vue';
 import LevelHeatmap from '@/Components/Wanikani/Stats/LevelHeatmap.vue';
 import AccuracyPanel from '@/Components/Wanikani/Stats/AccuracyPanel.vue';
 import ContentProgressPanel from '@/Components/Wanikani/Stats/ContentProgressPanel.vue';
@@ -25,6 +23,7 @@ import {
 } from '@/utils/wanikaniToken';
 import { useWanikaniStats } from '@/composables/useWanikaniStats';
 import { formatFreshness, formatNumber } from '@/domain/format';
+import type { DownloadStep } from '@/api/loader';
 
 /**
  * Which token the dashboard is currently reading.
@@ -40,6 +39,13 @@ const bakedInToken = getBakedInToken();
 
 const { stats, settings, isLoading, isRefreshing, error, progress, load, refresh, resetAssumptions, loadedAt } =
     useWanikaniStats(activeToken);
+
+const downloadPercent = (download: DownloadStep): number => {
+    if (download.status === 'done') {
+        return 100;
+    }
+    return download.total > 0 ? (download.loaded / download.total) * 100 : download.status === 'active' ? 5 : 0;
+};
 
 const hasToken = computed(() => activeToken.value !== null);
 const showDashboard = computed(() => hasToken.value && stats.value !== null);
@@ -113,12 +119,26 @@ onMounted(() => {
                     </span>
                     <button
                         type="button"
-                        class="px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors bg-white border border-gray-200 rounded-lg hover:border-indigo-400 hover:text-gray-900 disabled:opacity-50"
+                        class="grid h-[30px] w-[30px] text-base leading-none text-gray-600 transition-colors bg-white border border-gray-200 rounded-lg place-items-center hover:border-indigo-400 hover:text-gray-900 disabled:opacity-50"
                         :disabled="isRefreshing"
+                        :aria-label="isRefreshing ? 'Refreshing' : 'Refresh'"
+                        :title="isRefreshing ? 'Refreshing…' : 'Refresh'"
                         @click="refresh"
                     >
-                        <span :class="isRefreshing ? 'inline-block animate-spin' : ''" aria-hidden="true">⟳</span>
-                        {{ isRefreshing ? 'Refreshing…' : 'Refresh' }}
+                        <svg
+                            class="size-3.5"
+                            :class="isRefreshing ? 'animate-spin' : ''"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                        >
+                            <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+                            <path d="M21 3v6h-6" />
+                        </svg>
                     </button>
                     <button
                         type="button"
@@ -131,7 +151,7 @@ onMounted(() => {
                         :aria-pressed="settings.isPanelOpen"
                         @click="settings.isPanelOpen = !settings.isPanelOpen"
                     >
-                        Assumptions
+                        Settings
                     </button>
                 </div>
             </div>
@@ -150,21 +170,35 @@ onMounted(() => {
             <!-- First load pulls ~20 pages, so progress is shown honestly. -->
             <div v-if="isLoading && !stats" class="p-6 mx-4 mt-8 bg-white border border-gray-200 rounded-xl">
                 <p class="text-sm font-semibold text-gray-800">
-                    {{ progress.label || 'Loading your WaniKani data' }}
+                    {{ progress.label || 'Loading WaniKani data' }}
                 </p>
-                <p class="mt-1 text-xs text-gray-500">
-                    <template v-if="progress.total > 0">
-                        {{ formatNumber(progress.loaded) }} of {{ formatNumber(progress.total) }} records
-                    </template>
-                    <template v-else>This first load can take a moment.</template>
-                </p>
-                <div class="mt-4">
-                    <ProgressBar
-                        :value="progress.total > 0 ? (progress.loaded / progress.total) * 100 : 5"
-                        color="#6366f1"
-                        :height="6"
-                    />
-                </div>
+
+                <!-- Each collection downloads in parallel, so each gets its own row and bar. -->
+                <ul v-if="progress.downloads?.length" class="mt-4 space-y-3">
+                    <li v-for="download in progress.downloads" :key="download.key" :data-download="download.key">
+                        <div class="flex items-baseline justify-between gap-3 text-xs">
+                            <span :class="download.status === 'pending' ? 'text-gray-400' : 'text-gray-700'">
+                                {{ download.label }}
+                            </span>
+                            <span class="tabular-nums text-gray-400 shrink-0">
+                                <template v-if="download.status === 'done' && download.cached">Up to date</template>
+                                <template v-else-if="download.total > 0">
+                                    {{ formatNumber(download.loaded) }} / {{ formatNumber(download.total) }}
+                                </template>
+                                <template v-else-if="download.status === 'active'">Starting…</template>
+                                <template v-else>Waiting</template>
+                            </span>
+                        </div>
+                        <div class="mt-1.5">
+                            <ProgressBar
+                                :value="downloadPercent(download)"
+                                :color="download.status === 'done' ? '#10b981' : '#6366f1'"
+                                :height="4"
+                            />
+                        </div>
+                    </li>
+                </ul>
+                <p v-else class="mt-1 text-xs text-gray-500">This first load can take a moment.</p>
             </div>
 
             <!--
@@ -278,20 +312,19 @@ onMounted(() => {
 
                     <KpiRow :stats="stats" :settings="settings" />
 
-                    <BurnForecastPanel :stats="stats" />
-
-                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
-                        <TimeInvestmentPanel :stats="stats" :settings="settings" />
-                        <div class="grid min-w-0 grid-cols-1 gap-4">
-                            <CurrentLevelPanel :stats="stats" />
-                            <SrsBreakdown :stats="stats" />
-                            <ReviewForecastPanel :stats="stats" />
-                        </div>
+                    <!-- Where things stand right now. -->
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                        <CurrentLevelPanel :stats="stats" />
+                        <SrsBreakdown :stats="stats" />
                     </div>
 
+                    <!-- How it got here. -->
                     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <LevelHeatmap :stats="stats" />
-                        <AccuracyPanel :stats="stats" />
+                        <div class="grid min-w-0 grid-cols-1 gap-4 content-start">
+                            <TimeInvestmentPanel :stats="stats" :settings="settings" />
+                            <AccuracyPanel :stats="stats" />
+                        </div>
                     </div>
 
                     <ContentProgressPanel :stats="stats" />
