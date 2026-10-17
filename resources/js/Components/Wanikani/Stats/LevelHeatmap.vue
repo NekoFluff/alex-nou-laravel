@@ -142,8 +142,8 @@ const resets = computed(() => props.stats.levels.resets)
             />
         </template>
 
-        <!-- Six columns on phones keep each tile a comfortable tap target. -->
-        <div class="grid grid-cols-6 gap-2 sm:grid-cols-10 sm:gap-1.5">
+        <!-- Five columns on phones keep each tile a comfortable tap target. -->
+        <div class="grid grid-cols-5 gap-2 sm:grid-cols-10 sm:gap-1.5">
             <button
                 v-for="row in rows"
                 :key="row.level"
